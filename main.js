@@ -95,6 +95,7 @@
   }
 
   function showNativePdfFallback(reason) {
+    console.warn("[ACME Waters] PDF.js no disponible; se activa visor nativo.", { reason });
     const doc = activeDocument();
     traceViewerFallback(reason);
     if (els.canvas) {
