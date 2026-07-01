@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./style.css">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
   <script defer src="./gl/ethereal-field.js"></script>
+  <script defer src="./gl/molecule.js"></script>
   <script defer src="./main.js"></script>
 </head>
 <body>
@@ -54,7 +55,10 @@
       </div>
 
       <aside class="hero-molecule" aria-label="Representación tridimensional animada de una molécula de agua">
-        <div class="molecule-shell" aria-hidden="true">
+        <canvas id="molecule-canvas" class="molecule-canvas" aria-hidden="true"></canvas>
+        <div id="molecule-fallback" class="molecule-css-fallback" aria-hidden="true">
+          <span class="bond bond-left"></span>
+          <span class="bond bond-right"></span>
           <span class="atom atom-oxygen"></span>
           <span class="atom atom-hydrogen atom-h-left"></span>
           <span class="atom atom-hydrogen atom-h-right"></span>
