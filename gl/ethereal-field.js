@@ -40,71 +40,72 @@ float noise(vec2 p) {
 float fbm(vec2 p) {
   float v = 0.0;
   float a = 0.52;
-  mat2 r = mat2(0.82, -0.57, 0.57, 0.82);
+  mat2 r = mat2(0.80, -0.60, 0.60, 0.80);
   for (int i = 0; i < 5; i++) {
     v += a * noise(p);
-    p = r * p * 2.06 + vec2(2.7, 3.9);
+    p = r * p * 2.03 + vec2(3.4, 1.7);
     a *= 0.50;
   }
   return v;
 }
 
-float causticLine(float value, float width, float glow) {
-  float d = abs(fract(value) - 0.5);
-  float core = smoothstep(width, 0.0, d);
-  float halo = smoothstep(glow, 0.0, d) * 0.42;
-  return core + halo;
+float causticStroke(float x, float sharpness) {
+  float v = abs(sin(x));
+  return pow(1.0 - v, sharpness);
 }
 
 void main() {
   vec2 uv = vUv;
   vec2 aspect = vec2(uResolution.x / max(uResolution.y, 1.0), 1.0);
   vec2 p = (uv - 0.5) * aspect;
+  float t = uTime * 0.22;
 
-  float t = uTime * 0.075;
+  vec2 flow = vec2(
+    sin(p.y * 2.1 + t * 0.85) + sin((p.x + p.y) * 2.7 - t * 0.62),
+    cos(p.x * 2.0 - t * 0.72) + sin((p.y - p.x) * 2.4 + t * 0.58)
+  ) * 0.035;
 
-  vec2 slowSwell = vec2(
-    sin(p.y * 2.6 + t * 3.1),
-    cos(p.x * 2.2 - t * 2.4)
-  ) * 0.055;
+  float n1 = fbm(p * 1.6 + flow + vec2(t * 0.20, -t * 0.16));
+  float n2 = fbm(p * 3.2 - flow + vec2(-t * 0.12, t * 0.19));
+  vec2 q = p + flow + vec2(n1 - 0.5, n2 - 0.5) * 0.12;
 
-  float surfaceA = fbm(p * 1.7 + vec2(t * 0.55, -t * 0.34));
-  float surfaceB = fbm(p * 3.1 + vec2(-t * 0.26, t * 0.45) + surfaceA * 0.72);
-  vec2 q = p + slowSwell + vec2(surfaceA - 0.5, surfaceB - 0.5) * 0.18;
+  float w1 = q.x * 15.5 + sin(q.y * 6.2 + t * 1.1) * 1.35 + t * 0.85;
+  float w2 = (q.x * 0.64 + q.y * 0.92) * 16.2 + cos(q.x * 5.2 - t * 0.9) * 1.10 - t * 0.72;
+  float w3 = (-q.x * 0.74 + q.y * 1.08) * 13.0 + sin(q.y * 4.8 + t * 0.7) * 1.00 + t * 0.52;
 
-  float c1 = causticLine(q.x * 2.15 + sin(q.y * 5.3 + t * 2.2) * 0.18 + t * 0.42, 0.030, 0.105);
-  float c2 = causticLine((q.x * 0.72 + q.y * 1.72) + sin(q.x * 4.4 - t * 2.0) * 0.17 - t * 0.35, 0.026, 0.098);
-  float c3 = causticLine((-q.x * 1.28 + q.y * 1.22) + cos(q.y * 4.0 + t * 1.7) * 0.18 + t * 0.28, 0.024, 0.092);
+  float c1 = causticStroke(w1, 18.0);
+  float c2 = causticStroke(w2, 20.0);
+  float c3 = causticStroke(w3, 16.0);
+  float caustics = clamp(c1 * 0.80 + c2 * 0.72 + c3 * 0.58, 0.0, 1.0);
+  caustics = smoothstep(0.03, 0.88, caustics);
 
-  float caustics = (c1 * 0.42 + c2 * 0.38 + c3 * 0.34);
-  caustics = pow(clamp(caustics, 0.0, 1.0), 2.25);
+  float softWaves = sin((p.x * 3.0 + p.y * 1.5) + n2 * 5.0 - t * 0.75) *
+                    sin((p.y * 2.8 - p.x * 1.8) + n1 * 4.2 + t * 0.56);
+  float shadows = smoothstep(0.14, 0.95, softWaves * 0.5 + 0.5);
+  shadows *= 0.20 + 0.46 * fbm(p * 0.95 + vec2(-t * 0.08, t * 0.06));
 
-  float shadowBands =
-    sin((p.x * 3.0 + p.y * 1.1) + surfaceB * 3.4 - t * 1.1) *
-    sin((p.y * 2.2 - p.x * 1.7) + surfaceA * 2.8 + t * 0.92);
-  float softShadow = smoothstep(0.10, 0.88, shadowBands * 0.5 + 0.5);
-  softShadow *= 0.18 + 0.38 * fbm(p * 1.05 + vec2(-t * 0.33, t * 0.18));
+  float depth = smoothstep(1.42, 0.14, length(p + vec2(0.02, -0.02)));
+  float topLight = smoothstep(0.98, 0.15, uv.y) * 0.18;
+  float sparkle = pow(smoothstep(0.60, 1.0, fbm(q * 10.5 + vec2(t * 0.70, -t * 0.55))), 5.0);
 
-  float poolDepth = smoothstep(1.42, 0.18, length(p + vec2(0.04, -0.02)));
-  float surfaceGlow = smoothstep(0.10, 0.95, uv.y) * smoothstep(1.18, 0.18, length(p));
-  float sparkle = pow(smoothstep(0.56, 1.0, fbm(q * 11.0 + vec2(t * 1.5, -t))), 6.0);
+  vec3 deep = vec3(0.000, 0.055, 0.110);
+  vec3 pool = vec3(0.000, 0.360, 0.560);
+  vec3 aqua = vec3(0.055, 0.900, 1.000);
+  vec3 pearl = vec3(0.940, 1.000, 0.960);
 
-  vec3 deep = vec3(0.012, 0.090, 0.165);
-  vec3 lagoon = vec3(0.000, 0.370, 0.560);
-  vec3 crystal = vec3(0.060, 0.950, 1.000);
-  vec3 pearl = vec3(0.935, 1.000, 0.960);
+  vec3 color = mix(deep, pool, depth * 0.82 + n1 * 0.22);
+  color = mix(color, aqua, 0.10 + n2 * 0.10 + topLight);
+  color -= vec3(0.000, 0.100, 0.155) * shadows;
+  color += pearl * caustics * 0.88;
+  color += aqua * sparkle * 0.18;
 
-  vec3 color = mix(deep, lagoon, poolDepth * 0.88 + surfaceB * 0.18);
-  color = mix(color, crystal, surfaceGlow * 0.20 + caustics * 0.34);
-  color -= vec3(0.020, 0.085, 0.115) * softShadow;
-  color += pearl * caustics * 0.58;
-  color += crystal * sparkle * 0.16;
+  float vignette = smoothstep(1.48, 0.18, length(p));
+  color *= mix(0.58, 1.16, vignette);
+  color += vec3(0.02, 0.14, 0.16) * (1.0 - vignette);
 
-  float vignette = smoothstep(1.55, 0.20, length(p));
-  float alpha = 0.18 + caustics * 0.48 + sparkle * 0.08;
-  alpha += surfaceGlow * 0.10;
-  alpha *= mix(0.50, 1.0, vignette);
-  alpha = clamp(alpha, 0.0, 0.82);
+  float alpha = 0.66 + caustics * 0.26 + sparkle * 0.05;
+  alpha *= mix(0.70, 1.0, vignette);
+  alpha = clamp(alpha, 0.56, 0.96);
 
   gl_FragColor = vec4(color, alpha);
 }
