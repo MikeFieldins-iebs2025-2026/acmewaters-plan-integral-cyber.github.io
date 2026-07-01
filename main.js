@@ -2,6 +2,7 @@
    - PDF.js single viewer with native fallback.
    - Relative asset paths only.
    - Local video download UI mitigation.
+   - PDF links open in a new tab with relative URLs.
 */
 
 (() => {
@@ -50,16 +51,9 @@
   };
 
   function setStatus(message, stateName = "ready") {
-    // Estado interno sin salida visual: la interfaz usa el visor nativo como fallback silencioso.
     if (!els.status) return;
     els.status.textContent = message;
     els.status.dataset.state = stateName;
-  }
-
-  function traceViewerFallback(reason) {
-    if (window.console && typeof window.console.warn === "function") {
-      window.console.warn("[ACME Waters] PDF.js no disponible; visor nativo activado.", reason);
-    }
   }
 
   function activeDocument() {
@@ -79,16 +73,9 @@
   }
 
   function showNativePdfFallback(reason) {
+    console.warn("[ACME Waters] PDF.js no disponible; se activa visor nativo.", { reason });
     const doc = activeDocument();
-    traceViewerFallback(reason);
-    if (els.canvas) {
-      els.canvas.hidden = true;
-      els.canvas.removeAttribute("aria-label");
-      els.canvas.width = 0;
-      els.canvas.height = 0;
-      els.canvas.style.width = "";
-      els.canvas.style.height = "";
-    }
+    if (els.canvas) els.canvas.hidden = true;
     if (els.fallback) {
       els.fallback.hidden = false;
       els.fallback.src = doc.url;
@@ -96,14 +83,14 @@
     state.pdfDoc = null;
     els.pageNum.textContent = "—";
     els.pageCount.textContent = "—";
-    setStatus("Visor nativo activado.", "error");
+    setStatus(
+      `Modo visor nativo activado. PDF.js no está disponible o el navegador bloqueó el acceso local (${reason}).`,
+      "error"
+    );
   }
 
   function showPdfCanvas() {
-    if (els.canvas) {
-      els.canvas.hidden = false;
-      els.canvas.setAttribute("aria-label", "Página renderizada del documento PDF");
-    }
+    if (els.canvas) els.canvas.hidden = false;
     if (els.fallback) els.fallback.hidden = true;
   }
 
