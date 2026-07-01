@@ -1,30 +1,30 @@
-/* ACME Waters · Cyber Portal v5 incremental
-   Dark crystalline Frutiger Aero/Y2K refresh:
-   - H2O molecule as three volumetric CSS spheres only.
-   - WebGL pool-caustics background with stronger typographic contrast.
-   - Relative paths preserved.
+/* ACME Waters · Cyber Portal v6 incremental
+   Pool-water Frutiger Aero/Y2K refinement:
+   - H2O molecule reworked as three volumetric spheres only.
+   - WebGL slow swimming-pool reflection / shadow background.
+   - Palette tuned for legibility on darker crystalline water.
 */
 
 :root {
   color-scheme: dark;
-  --bg: #02172a;
-  --bg-2: #006c9e;
-  --ink: #f7fffe;
+  --bg: #001423;
+  --bg-2: #005a83;
+  --ink: #f5fffd;
   --ink-strong: #ffffff;
-  --muted: #d2f8ff;
-  --muted-2: #aee8f2;
-  --aqua: #79fff1;
-  --cyan: #35dcff;
-  --blue: #0f7ec4;
-  --deep-blue: #032b55;
-  --violet: #b8d5ff;
-  --pink: #d8fbff;
-  --lime: #d9ff79;
-  --panel: rgba(1, 25, 45, 0.68);
-  --panel-strong: rgba(2, 38, 67, 0.90);
-  --border: rgba(209, 255, 253, 0.26);
-  --border-strong: rgba(230, 255, 255, 0.56);
-  --shadow: 0 32px 84px rgba(0, 18, 38, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  --muted: #d3fbff;
+  --muted-2: #a7ecf4;
+  --aqua: #63fff2;
+  --cyan: #1bd6ff;
+  --blue: #0a77bc;
+  --deep-blue: #001f3b;
+  --violet: #9ec4ff;
+  --pink: #ff5f6f;
+  --lime: #d9ff67;
+  --panel: rgba(0, 18, 34, 0.74);
+  --panel-strong: rgba(0, 31, 55, 0.94);
+  --border: rgba(195, 252, 255, 0.28);
+  --border-strong: rgba(235, 255, 255, 0.60);
+  --shadow: 0 34px 92px rgba(0, 11, 25, 0.54), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   --radius-xl: 34px;
   --radius-lg: 24px;
   --radius-md: 16px;
@@ -50,11 +50,11 @@ body {
   font-family: var(--font-body);
   color: var(--ink);
   background:
-    radial-gradient(circle at 16% -8%, rgba(233, 255, 253, 0.52), transparent 16rem),
-    radial-gradient(circle at 82% 4%, rgba(90, 245, 255, 0.42), transparent 28rem),
-    radial-gradient(circle at 20% 40%, rgba(38, 203, 255, 0.22), transparent 36rem),
-    radial-gradient(circle at 78% 74%, rgba(121, 255, 241, 0.15), transparent 30rem),
-    linear-gradient(155deg, #7ef8ff 0%, #28cfe9 10%, #078ab8 26%, #045e91 44%, #033766 65%, #021b35 82%, #010b1d 100%);
+    radial-gradient(circle at 18% -12%, rgba(210, 255, 252, 0.34), transparent 15rem),
+    radial-gradient(circle at 76% 2%, rgba(60, 234, 255, 0.30), transparent 26rem),
+    radial-gradient(circle at 12% 42%, rgba(0, 210, 255, 0.20), transparent 34rem),
+    radial-gradient(circle at 84% 70%, rgba(99, 255, 242, 0.16), transparent 32rem),
+    linear-gradient(160deg, #0db4d0 0%, #008ab1 13%, #046088 28%, #024365 45%, #012b4a 66%, #00182d 84%, #000814 100%);
   overflow-x: hidden;
 }
 
@@ -64,13 +64,13 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, 0.28), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 32%, rgba(0, 12, 28, 0.30) 100%),
-    repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 22px),
-    repeating-linear-gradient(62deg, rgba(111, 246, 255, 0.052) 0 1px, transparent 1px 30px);
-  background-size: auto, auto, 560px 360px, 680px 420px;
-  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.90) 58%, transparent 100%);
-  opacity: 0.70;
+    radial-gradient(ellipse at 50% -8%, rgba(255, 255, 255, 0.24), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 35%, rgba(0, 8, 20, 0.42) 100%),
+    repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.048) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(62deg, rgba(99, 255, 242, 0.040) 0 1px, transparent 1px 32px);
+  background-size: auto, auto, 560px 360px, 720px 440px;
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.90) 62%, transparent 100%);
+  opacity: 0.62;
   mix-blend-mode: screen;
   z-index: -3;
 }
@@ -81,12 +81,13 @@ body::after {
   inset: -14%;
   pointer-events: none;
   background:
-    conic-gradient(from 166deg at 22% 34%, transparent 0 66deg, rgba(255,255,255,0.18) 74deg, transparent 91deg 360deg),
-    conic-gradient(from 30deg at 80% 18%, transparent 0 58deg, rgba(141,255,245,0.15) 68deg, transparent 88deg 360deg),
-    radial-gradient(circle at 66% 76%, rgba(54, 220, 255, 0.18), transparent 34%);
-  filter: blur(24px) saturate(155%);
-  opacity: 0.50;
-  animation: causticDrift 22s ease-in-out infinite alternate;
+    radial-gradient(ellipse at 28% 24%, rgba(230, 255, 251, 0.16), transparent 28%),
+    radial-gradient(ellipse at 78% 18%, rgba(91, 232, 255, 0.15), transparent 30%),
+    conic-gradient(from 166deg at 22% 34%, transparent 0 66deg, rgba(255,255,255,0.12) 74deg, transparent 91deg 360deg),
+    radial-gradient(circle at 66% 76%, rgba(27, 214, 255, 0.16), transparent 34%);
+  filter: blur(30px) saturate(150%);
+  opacity: 0.44;
+  animation: causticDrift 24s ease-in-out infinite alternate;
   z-index: -2;
 }
 
@@ -136,7 +137,7 @@ select {
   width: 100%;
   height: 100%;
   z-index: -4;
-  opacity: 0.92;
+  opacity: 0.98;
   pointer-events: none;
   mix-blend-mode: screen;
 }
@@ -156,13 +157,13 @@ select {
 .ambient-a {
   left: -12vmax;
   top: 8vh;
-  background: rgba(58, 229, 255, 0.38);
+  background: rgba(23, 214, 255, 0.30);
 }
 
 .ambient-b {
   right: -12vmax;
   top: 38vh;
-  background: rgba(124, 255, 241, 0.28);
+  background: rgba(99, 255, 242, 0.22);
 }
 
 .scanline {
@@ -202,7 +203,7 @@ select {
   padding: 0.8rem 1rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(1, 21, 39, 0.74);
+  background: rgba(0, 18, 34, 0.82);
   box-shadow: 0 18px 48px rgba(0, 87, 122, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(18px) saturate(150%);
 }
@@ -366,8 +367,8 @@ main {
   border: 0;
   background:
     linear-gradient(135deg, rgba(255,255,255,0.90), rgba(255,255,255,0.28) 36%, transparent 37%),
-    linear-gradient(135deg, var(--aqua), var(--cyan) 44%, var(--pink));
-  box-shadow: 0 16px 38px rgba(73, 200, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    linear-gradient(135deg, var(--aqua), var(--cyan) 52%, #eafcff);
+  box-shadow: 0 16px 38px rgba(27, 214, 255, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .button-ghost {
@@ -383,53 +384,56 @@ main {
 
 .hero-molecule {
   position: relative;
-  min-height: 460px;
+  min-height: 470px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-xl);
   isolation: isolate;
-  perspective: 1400px;
+  perspective: 1500px;
 }
 
 .hero-molecule::before {
   content: "";
   position: absolute;
-  inset: 3%;
-  border-radius: 44% 56% 48% 52% / 54% 42% 58% 46%;
+  inset: 4%;
+  border-radius: 46% 54% 50% 50% / 54% 46% 58% 42%;
   background:
-    radial-gradient(circle at 36% 20%, rgba(255, 255, 255, 0.54), transparent 10%),
-    radial-gradient(circle at 52% 52%, rgba(78, 229, 255, 0.22), transparent 44%),
-    radial-gradient(circle at 68% 72%, rgba(121, 255, 241, 0.12), transparent 48%);
-  filter: blur(3px) saturate(160%);
+    radial-gradient(circle at 36% 20%, rgba(255, 255, 255, 0.34), transparent 11%),
+    radial-gradient(circle at 52% 48%, rgba(72, 232, 255, 0.18), transparent 38%),
+    radial-gradient(circle at 62% 72%, rgba(23, 214, 255, 0.13), transparent 48%);
+  filter: blur(8px) saturate(170%);
   box-shadow:
-    inset 0 0 110px rgba(255, 255, 255, 0.08),
-    0 0 160px rgba(54, 220, 255, 0.24);
-  opacity: 0.74;
-  animation: moleculeBreath 10s ease-in-out infinite;
+    inset 0 0 130px rgba(255, 255, 255, 0.06),
+    0 0 170px rgba(27, 214, 255, 0.20);
+  opacity: 0.62;
+  animation: moleculeBreath 12s ease-in-out infinite;
   z-index: -2;
 }
 
 .hero-molecule::after {
   content: "";
   position: absolute;
-  width: min(76%, 540px);
-  aspect-ratio: 1.9 / 1;
-  bottom: 10%;
+  width: min(74%, 540px);
+  aspect-ratio: 2.1 / 1;
+  bottom: 7%;
   border-radius: 999px;
   background:
-    radial-gradient(ellipse at center, rgba(0, 10, 24, 0.42), transparent 62%),
-    radial-gradient(ellipse at 50% 44%, rgba(121, 255, 241, 0.12), transparent 72%);
-  filter: blur(24px);
+    radial-gradient(ellipse at center, rgba(0, 8, 18, 0.58), transparent 60%),
+    radial-gradient(ellipse at 52% 44%, rgba(99, 255, 242, 0.12), transparent 72%);
+  filter: blur(22px);
   transform: rotateX(68deg);
   z-index: -1;
 }
 
 .molecule-shell {
+  --oxygen-size: clamp(172px, 17vw, 224px);
+  --hydrogen-size: clamp(92px, 9.4vw, 128px);
   position: relative;
-  width: min(92%, 460px);
-  aspect-ratio: 1;
+  width: min(94%, 510px);
+  aspect-ratio: 1.12 / 1;
   transform-style: preserve-3d;
-  animation: moleculeFloatSpin 12s ease-in-out infinite;
+  animation: moleculeFloatSpin 11.5s ease-in-out infinite;
+  filter: drop-shadow(0 32px 48px rgba(0, 8, 20, 0.44));
 }
 
 .atom {
@@ -439,12 +443,13 @@ main {
   transform-style: preserve-3d;
   overflow: hidden;
   backface-visibility: hidden;
-  will-change: transform;
+  will-change: transform, filter;
+  isolation: isolate;
   box-shadow:
-    inset -34px -42px 58px rgba(0, 17, 34, 0.46),
-    inset 16px 18px 34px rgba(255, 255, 255, 0.70),
-    0 28px 72px rgba(0, 18, 38, 0.38),
-    0 0 82px rgba(121, 255, 241, 0.32);
+    inset -34px -40px 62px rgba(0, 12, 29, 0.56),
+    inset 16px 18px 32px rgba(255, 255, 255, 0.55),
+    0 22px 58px rgba(0, 9, 22, 0.42),
+    0 0 70px rgba(99, 255, 242, 0.22);
 }
 
 .atom::before,
@@ -457,83 +462,93 @@ main {
 
 .atom::before {
   left: 17%;
-  top: 11%;
-  width: 43%;
-  height: 28%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.28) 58%, transparent 72%);
-  filter: blur(1px);
-  transform: rotate(-18deg);
+  top: 10%;
+  width: 42%;
+  height: 29%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.30) 55%, transparent 73%);
+  filter: blur(0.5px);
+  transform: rotate(-17deg);
   mix-blend-mode: screen;
+  z-index: 2;
 }
 
 .atom::after {
-  inset: 7%;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  inset: 5%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   background:
-    radial-gradient(circle at 62% 76%, rgba(0, 28, 62, 0.28), transparent 36%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 42%, rgba(0, 21, 42, 0.20));
+    radial-gradient(circle at 65% 74%, rgba(0, 13, 31, 0.34), transparent 38%),
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 28%),
+    linear-gradient(138deg, rgba(255, 255, 255, 0.10), transparent 43%, rgba(0, 10, 24, 0.28));
   box-shadow:
-    inset 0 0 38px rgba(255, 255, 255, 0.16),
-    inset -18px -22px 42px rgba(0, 24, 52, 0.22);
+    inset 0 0 42px rgba(255, 255, 255, 0.12),
+    inset -24px -28px 54px rgba(0, 7, 18, 0.28);
+  z-index: 1;
 }
 
 .atom-oxygen {
-  width: 196px;
-  height: 196px;
+  width: var(--oxygen-size);
+  height: var(--oxygen-size);
   left: 50%;
-  top: 54%;
-  translate: -50% -50%;
+  top: 32%;
   background:
-    radial-gradient(circle at 31% 21%, rgba(255, 255, 255, 0.96), transparent 11%),
-    radial-gradient(circle at 47% 46%, rgba(126, 255, 245, 1) 0%, rgba(30, 206, 250, 0.92) 42%, rgba(5, 103, 178, 0.90) 76%, rgba(1, 28, 68, 0.96) 100%);
-  transform: translateZ(76px);
+    radial-gradient(circle at 31% 22%, rgba(255, 255, 255, 0.98), transparent 10%),
+    radial-gradient(circle at 48% 46%, #8aa8ff 0%, #4766de 43%, #173c9b 72%, #061842 100%);
+  transform: translate3d(-50%, -50%, 88px);
   animation: oxygenPulse 7.5s ease-in-out infinite;
+  box-shadow:
+    inset -36px -42px 64px rgba(0, 6, 27, 0.62),
+    inset 17px 20px 34px rgba(255, 255, 255, 0.58),
+    0 26px 70px rgba(0, 8, 20, 0.50),
+    0 0 80px rgba(115, 170, 255, 0.38);
 }
 
 .atom-hydrogen {
-  width: 116px;
-  height: 116px;
+  width: var(--hydrogen-size);
+  height: var(--hydrogen-size);
   background:
-    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 1), transparent 13%),
-    radial-gradient(circle at 48% 48%, rgba(255, 255, 255, 0.96) 0%, rgba(201, 249, 255, 0.88) 42%, rgba(106, 225, 255, 0.78) 73%, rgba(33, 118, 196, 0.82) 100%);
+    radial-gradient(circle at 31% 22%, rgba(255, 255, 255, 1), transparent 12%),
+    radial-gradient(circle at 49% 47%, #ff7d79 0%, #f01d32 47%, #9f0019 76%, #43000a 100%);
   box-shadow:
-    inset -21px -25px 36px rgba(0, 31, 62, 0.38),
-    inset 11px 13px 28px rgba(255, 255, 255, 0.78),
-    0 20px 52px rgba(0, 18, 38, 0.32),
-    0 0 54px rgba(230, 255, 255, 0.36);
+    inset -22px -26px 38px rgba(55, 0, 10, 0.50),
+    inset 11px 13px 26px rgba(255, 255, 255, 0.60),
+    0 20px 56px rgba(0, 8, 20, 0.40),
+    0 0 42px rgba(255, 87, 104, 0.34);
 }
 
 .atom-h-left {
-  left: 11%;
-  top: 22%;
-  transform: translateZ(26px) scale(0.98);
+  left: 28%;
+  top: 68%;
+  transform: translate3d(-50%, -50%, 22px);
   animation: hydrogenBobLeft 7s ease-in-out infinite;
 }
 
 .atom-h-right {
-  right: 8%;
-  top: 24%;
-  transform: translateZ(18px) scale(1.02);
+  left: 72%;
+  top: 68%;
+  transform: translate3d(-50%, -50%, 4px);
   animation: hydrogenBobRight 7s ease-in-out infinite 780ms;
 }
 
 @keyframes moleculeBreath {
-  0%, 100% { transform: scale(0.98) rotate(-1deg); opacity: 0.62; }
-  50% { transform: scale(1.045) rotate(1.2deg); opacity: 0.86; }
+  0%, 100% { transform: scale(0.98) rotate(-0.8deg); opacity: 0.54; }
+  50% { transform: scale(1.045) rotate(1deg); opacity: 0.78; }
 }
 
 @keyframes moleculeFloatSpin {
   0% {
-    transform: translate3d(0, 0, 0) rotateX(12deg) rotateY(-28deg) rotateZ(-3deg);
+    transform: translate3d(0, 0, 0) rotateX(16deg) rotateY(-34deg) rotateZ(-2deg);
   }
-  30% {
-    transform: translate3d(0, -20px, 18px) rotateX(18deg) rotateY(78deg) rotateZ(3deg);
+  27% {
+    transform: translate3d(0, -18px, 16px) rotateX(24deg) rotateY(68deg) rotateZ(2deg);
   }
-  58% {
-    transform: translate3d(0, 8px, 4px) rotateX(6deg) rotateY(190deg) rotateZ(-6deg);
+  55% {
+    transform: translate3d(0, 7px, 6px) rotateX(10deg) rotateY(176deg) rotateZ(-5deg);
+  }
+  78% {
+    transform: translate3d(0, -12px, 14px) rotateX(20deg) rotateY(262deg) rotateZ(4deg);
   }
   100% {
-    transform: translate3d(0, 0, 0) rotateX(12deg) rotateY(332deg) rotateZ(-3deg);
+    transform: translate3d(0, 0, 0) rotateX(16deg) rotateY(326deg) rotateZ(-2deg);
   }
 }
 
@@ -543,13 +558,13 @@ main {
 }
 
 @keyframes hydrogenBobLeft {
-  0%, 100% { translate: 0 0; scale: 0.98; }
-  50% { translate: -6px -10px; scale: 1.03; }
+  0%, 100% { translate: 0 0; scale: 1; }
+  50% { translate: -4px -8px; scale: 1.035; }
 }
 
 @keyframes hydrogenBobRight {
-  0%, 100% { translate: 0 0; scale: 1.02; }
-  50% { translate: 7px -9px; scale: 1.06; }
+  0%, 100% { translate: 0 0; scale: 1; }
+  50% { translate: 5px -8px; scale: 1.05; }
 }
 
 .section {
@@ -572,7 +587,7 @@ main {
 
 .section-heading p:not(.eyebrow) {
   margin: 0;
-  color: #dffbff;
+  color: var(--muted);
   line-height: 1.65;
 }
 
@@ -588,7 +603,7 @@ main {
   border-radius: var(--radius-xl);
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.16), transparent 22%),
-    linear-gradient(180deg, var(--panel), rgba(1, 13, 28, 0.78));
+    linear-gradient(180deg, var(--panel), rgba(0, 10, 24, 0.86));
   box-shadow: var(--shadow);
   backdrop-filter: blur(22px) saturate(160%);
 }
@@ -604,7 +619,7 @@ main {
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid var(--border);
-  background: rgba(1, 18, 34, 0.38);
+  background: rgba(0, 18, 34, 0.54);
 }
 
 .doc-switcher {
@@ -847,7 +862,7 @@ select {
   border: 1px solid var(--border);
   border-radius: 28px;
   color: var(--muted);
-  background: rgba(5, 18, 28, 0.72);
+  background: rgba(0, 17, 30, 0.82);
   backdrop-filter: blur(18px) saturate(140%);
 }
 
@@ -969,17 +984,9 @@ select {
   }
 
   .molecule-shell {
-    width: min(100%, 320px);
-  }
-
-  .atom-oxygen {
-    width: 146px;
-    height: 146px;
-  }
-
-  .atom-hydrogen {
-    width: 88px;
-    height: 88px;
+    --oxygen-size: 148px;
+    --hydrogen-size: 86px;
+    width: min(100%, 324px);
   }
 }
 
