@@ -1,27 +1,30 @@
-/* ACME Waters · Cyber Portal v4 incremental
-   Crystalline Frutiger Aero/Y2K refresh: molecule H2O hero, water-caustic background.
-   All local resources continue to use relative paths from index.html.
+/* ACME Waters · Cyber Portal v5 incremental
+   Dark crystalline Frutiger Aero/Y2K refresh:
+   - H2O molecule as three volumetric CSS spheres only.
+   - WebGL pool-caustics background with stronger typographic contrast.
+   - Relative paths preserved.
 */
 
 :root {
   color-scheme: dark;
-  --bg: #03283d;
-  --bg-2: #0aa8c9;
-  --ink: #f7fffd;
-  --muted: #d2f5f4;
-  --muted-2: #a8e5e9;
-  --aqua: #8dfff5;
-  --cyan: #42dfff;
-  --blue: #1b9fff;
-  --deep-blue: #034f78;
-  --violet: #9fc7ff;
-  --pink: #b7f7ff;
-  --lime: #dcff8b;
-  --panel: rgba(2, 45, 64, 0.58);
-  --panel-strong: rgba(3, 62, 86, 0.84);
-  --border: rgba(224, 255, 253, 0.28);
-  --border-strong: rgba(232, 255, 255, 0.54);
-  --shadow: 0 28px 74px rgba(0, 48, 75, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.30);
+  --bg: #02172a;
+  --bg-2: #006c9e;
+  --ink: #f7fffe;
+  --ink-strong: #ffffff;
+  --muted: #d2f8ff;
+  --muted-2: #aee8f2;
+  --aqua: #79fff1;
+  --cyan: #35dcff;
+  --blue: #0f7ec4;
+  --deep-blue: #032b55;
+  --violet: #b8d5ff;
+  --pink: #d8fbff;
+  --lime: #d9ff79;
+  --panel: rgba(1, 25, 45, 0.68);
+  --panel-strong: rgba(2, 38, 67, 0.90);
+  --border: rgba(209, 255, 253, 0.26);
+  --border-strong: rgba(230, 255, 255, 0.56);
+  --shadow: 0 32px 84px rgba(0, 18, 38, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.24);
   --radius-xl: 34px;
   --radius-lg: 24px;
   --radius-md: 16px;
@@ -47,11 +50,11 @@ body {
   font-family: var(--font-body);
   color: var(--ink);
   background:
-    radial-gradient(circle at 12% -10%, rgba(255, 255, 255, 0.82), transparent 18rem),
-    radial-gradient(circle at 84% 2%, rgba(174, 255, 242, 0.58), transparent 30rem),
-    radial-gradient(circle at 20% 42%, rgba(64, 226, 255, 0.30), transparent 38rem),
-    radial-gradient(circle at 78% 70%, rgba(220, 255, 139, 0.16), transparent 34rem),
-    linear-gradient(155deg, #dfffff 0%, #74eeff 13%, #18bce5 31%, #087ca4 50%, #043e68 72%, #03182e 100%);
+    radial-gradient(circle at 16% -8%, rgba(233, 255, 253, 0.52), transparent 16rem),
+    radial-gradient(circle at 82% 4%, rgba(90, 245, 255, 0.42), transparent 28rem),
+    radial-gradient(circle at 20% 40%, rgba(38, 203, 255, 0.22), transparent 36rem),
+    radial-gradient(circle at 78% 74%, rgba(121, 255, 241, 0.15), transparent 30rem),
+    linear-gradient(155deg, #7ef8ff 0%, #28cfe9 10%, #078ab8 26%, #045e91 44%, #033766 65%, #021b35 82%, #010b1d 100%);
   overflow-x: hidden;
 }
 
@@ -61,13 +64,13 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.28), transparent 46%),
-    repeating-radial-gradient(ellipse at 20% 16%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 18px),
-    linear-gradient(118deg, transparent 0 42%, rgba(255, 255, 255, 0.16) 43%, transparent 46% 100%),
-    linear-gradient(62deg, transparent 0 55%, rgba(141, 255, 245, 0.12) 56%, transparent 59% 100%);
-  background-size: auto, 520px 360px, 260px 190px, 340px 260px;
-  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.84) 52%, transparent 100%);
-  opacity: 0.58;
+    radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, 0.28), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 32%, rgba(0, 12, 28, 0.30) 100%),
+    repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(62deg, rgba(111, 246, 255, 0.052) 0 1px, transparent 1px 30px);
+  background-size: auto, auto, 560px 360px, 680px 420px;
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.90) 58%, transparent 100%);
+  opacity: 0.70;
   mix-blend-mode: screen;
   z-index: -3;
 }
@@ -75,15 +78,15 @@ body::before {
 body::after {
   content: "";
   position: fixed;
-  inset: -12%;
+  inset: -14%;
   pointer-events: none;
   background:
-    conic-gradient(from 172deg at 24% 34%, transparent 0 74deg, rgba(255,255,255,0.16) 82deg, transparent 96deg 360deg),
-    conic-gradient(from 18deg at 78% 20%, transparent 0 68deg, rgba(255,255,255,0.12) 76deg, transparent 92deg 360deg),
-    radial-gradient(circle at 72% 78%, rgba(141, 255, 245, 0.18), transparent 32%);
-  filter: blur(22px) saturate(135%);
-  opacity: 0.62;
-  animation: causticDrift 24s ease-in-out infinite alternate;
+    conic-gradient(from 166deg at 22% 34%, transparent 0 66deg, rgba(255,255,255,0.18) 74deg, transparent 91deg 360deg),
+    conic-gradient(from 30deg at 80% 18%, transparent 0 58deg, rgba(141,255,245,0.15) 68deg, transparent 88deg 360deg),
+    radial-gradient(circle at 66% 76%, rgba(54, 220, 255, 0.18), transparent 34%);
+  filter: blur(24px) saturate(155%);
+  opacity: 0.50;
+  animation: causticDrift 22s ease-in-out infinite alternate;
   z-index: -2;
 }
 
@@ -133,7 +136,7 @@ select {
   width: 100%;
   height: 100%;
   z-index: -4;
-  opacity: 0.78;
+  opacity: 0.92;
   pointer-events: none;
   mix-blend-mode: screen;
 }
@@ -153,13 +156,13 @@ select {
 .ambient-a {
   left: -12vmax;
   top: 8vh;
-  background: rgba(111, 246, 255, 0.62);
+  background: rgba(58, 229, 255, 0.38);
 }
 
 .ambient-b {
   right: -12vmax;
   top: 38vh;
-  background: rgba(196, 255, 245, 0.42);
+  background: rgba(124, 255, 241, 0.28);
 }
 
 .scanline {
@@ -199,7 +202,7 @@ select {
   padding: 0.8rem 1rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(2, 44, 64, 0.58);
+  background: rgba(1, 21, 39, 0.74);
   box-shadow: 0 18px 48px rgba(0, 87, 122, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(18px) saturate(150%);
 }
@@ -230,7 +233,7 @@ select {
 
 .brand small {
   display: block;
-  color: var(--muted);
+  color: var(--muted-2);
   font-size: 0.74rem;
 }
 
@@ -245,7 +248,7 @@ select {
 .nav-links a {
   padding: 0.55rem 0.78rem;
   border-radius: 999px;
-  color: var(--muted);
+  color: var(--muted-2);
   font-size: 0.9rem;
   text-decoration: none;
   transition: background 180ms ease, color 180ms ease;
@@ -283,16 +286,17 @@ main {
   border: 1px solid rgba(232, 255, 255, 0.18);
   border-radius: 28px;
   background:
-    linear-gradient(135deg, rgba(2, 45, 64, 0.50), rgba(255, 255, 255, 0.06) 46%, rgba(3, 95, 128, 0.20));
+    linear-gradient(135deg, rgba(0, 22, 42, 0.72), rgba(255, 255, 255, 0.055) 46%, rgba(1, 82, 118, 0.24));
   box-shadow:
-    0 24px 72px rgba(0, 69, 98, 0.18),
+    0 28px 78px rgba(0, 12, 28, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
   backdrop-filter: blur(12px) saturate(150%);
 }
 
 .eyebrow {
   margin: 0 0 0.8rem;
-  color: var(--aqua);
+  color: #a9fff8;
+  text-shadow: 0 1px 14px rgba(0, 18, 34, 0.58);
   font-size: 0.78rem;
   font-weight: 850;
   letter-spacing: 0.16em;
@@ -305,7 +309,8 @@ main {
   font-size: clamp(3rem, 7.5vw, 7.6rem);
   line-height: 0.9;
   text-wrap: balance;
-  text-shadow: 0 2px 18px rgba(0, 27, 42, 0.42), 0 0 38px rgba(141, 255, 245, 0.20);
+  color: var(--ink-strong);
+  text-shadow: 0 3px 24px rgba(0, 10, 24, 0.72), 0 0 44px rgba(121, 255, 241, 0.22);
 }
 
 .hero h1::first-line {
@@ -315,7 +320,8 @@ main {
 .hero-lead {
   max-width: 680px;
   margin: 1.4rem 0 0;
-  color: var(--muted);
+  color: #e3fbff;
+  text-shadow: 0 1px 12px rgba(0, 16, 32, 0.50);
   font-size: clamp(1rem, 1.65vw, 1.24rem);
   line-height: 1.72;
 }
@@ -332,7 +338,7 @@ main {
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(2, 35, 61, 0.54);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 12px 24px rgba(0, 0, 0, 0.14);
   cursor: pointer;
   text-decoration: none;
@@ -352,14 +358,14 @@ main {
 .icon-button:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(22, 176, 212, 0.24);
 }
 
 .button-primary {
   color: #041017;
   border: 0;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,255,255,0.22) 36%, transparent 37%),
+    linear-gradient(135deg, rgba(255,255,255,0.90), rgba(255,255,255,0.28) 36%, transparent 37%),
     linear-gradient(135deg, var(--aqua), var(--cyan) 44%, var(--pink));
   box-shadow: 0 16px 38px rgba(73, 200, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
@@ -374,6 +380,7 @@ main {
   font-size: 0.9rem;
 }
 
+
 .hero-molecule {
   position: relative;
   min-height: 460px;
@@ -381,35 +388,37 @@ main {
   place-items: center;
   border-radius: var(--radius-xl);
   isolation: isolate;
-  perspective: 1200px;
+  perspective: 1400px;
 }
 
 .hero-molecule::before {
   content: "";
   position: absolute;
-  inset: 2%;
+  inset: 3%;
   border-radius: 44% 56% 48% 52% / 54% 42% 58% 46%;
   background:
-    radial-gradient(circle at 34% 22%, rgba(255, 255, 255, 0.72), transparent 10%),
-    radial-gradient(circle at 50% 52%, rgba(175, 255, 250, 0.30), transparent 42%),
-    radial-gradient(circle at 68% 70%, rgba(220, 255, 139, 0.16), transparent 46%);
-  filter: blur(2px) saturate(155%);
+    radial-gradient(circle at 36% 20%, rgba(255, 255, 255, 0.54), transparent 10%),
+    radial-gradient(circle at 52% 52%, rgba(78, 229, 255, 0.22), transparent 44%),
+    radial-gradient(circle at 68% 72%, rgba(121, 255, 241, 0.12), transparent 48%);
+  filter: blur(3px) saturate(160%);
   box-shadow:
-    inset 0 0 96px rgba(255, 255, 255, 0.12),
-    0 0 150px rgba(141, 255, 245, 0.30);
-  opacity: 0.95;
-  animation: moleculeBreath 9s ease-in-out infinite;
+    inset 0 0 110px rgba(255, 255, 255, 0.08),
+    0 0 160px rgba(54, 220, 255, 0.24);
+  opacity: 0.74;
+  animation: moleculeBreath 10s ease-in-out infinite;
   z-index: -2;
 }
 
 .hero-molecule::after {
   content: "";
   position: absolute;
-  width: min(72%, 520px);
-  aspect-ratio: 1.8 / 1;
-  bottom: 12%;
+  width: min(76%, 540px);
+  aspect-ratio: 1.9 / 1;
+  bottom: 10%;
   border-radius: 999px;
-  background: radial-gradient(ellipse, rgba(6, 95, 125, 0.34), transparent 68%);
+  background:
+    radial-gradient(ellipse at center, rgba(0, 10, 24, 0.42), transparent 62%),
+    radial-gradient(ellipse at 50% 44%, rgba(121, 255, 241, 0.12), transparent 72%);
   filter: blur(24px);
   transform: rotateX(68deg);
   z-index: -1;
@@ -420,46 +429,22 @@ main {
   width: min(92%, 460px);
   aspect-ratio: 1;
   transform-style: preserve-3d;
-  animation: moleculeFloatSpin 11.5s ease-in-out infinite;
-}
-
-.atom,
-.bond,
-.molecule-ring,
-.molecule-aura,
-.electron {
-  position: absolute;
-  display: block;
-}
-
-.molecule-aura {
-  inset: 17%;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.10), transparent 34%),
-    radial-gradient(circle at 50% 50%, rgba(119, 240, 255, 0.18), transparent 58%);
-  filter: blur(6px);
-  transform: translateZ(-70px);
-}
-
-.aura-b {
-  inset: 6%;
-  opacity: 0.45;
-  transform: rotateX(68deg) rotateZ(-12deg) translateZ(-92px);
-  border: 1px solid rgba(232, 255, 255, 0.20);
-  background: transparent;
-  box-shadow: 0 0 72px rgba(141, 255, 245, 0.18);
+  animation: moleculeFloatSpin 12s ease-in-out infinite;
 }
 
 .atom {
+  position: absolute;
+  display: block;
   border-radius: 999px;
   transform-style: preserve-3d;
   overflow: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
   box-shadow:
-    inset -28px -34px 48px rgba(0, 51, 75, 0.36),
-    inset 14px 16px 32px rgba(255, 255, 255, 0.62),
-    0 22px 50px rgba(0, 81, 119, 0.32),
-    0 0 70px rgba(141, 255, 245, 0.34);
+    inset -34px -42px 58px rgba(0, 17, 34, 0.46),
+    inset 16px 18px 34px rgba(255, 255, 255, 0.70),
+    0 28px 72px rgba(0, 18, 38, 0.38),
+    0 0 82px rgba(121, 255, 241, 0.32);
 }
 
 .atom::before,
@@ -471,185 +456,100 @@ main {
 }
 
 .atom::before {
-  left: 20%;
-  top: 12%;
-  width: 38%;
-  height: 25%;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.18) 62%, transparent 72%);
+  left: 17%;
+  top: 11%;
+  width: 43%;
+  height: 28%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.28) 58%, transparent 72%);
   filter: blur(1px);
   transform: rotate(-18deg);
+  mix-blend-mode: screen;
 }
 
 .atom::after {
-  inset: 8%;
+  inset: 7%;
   border: 1px solid rgba(255, 255, 255, 0.24);
-  box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.22);
+  background:
+    radial-gradient(circle at 62% 76%, rgba(0, 28, 62, 0.28), transparent 36%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 42%, rgba(0, 21, 42, 0.20));
+  box-shadow:
+    inset 0 0 38px rgba(255, 255, 255, 0.16),
+    inset -18px -22px 42px rgba(0, 24, 52, 0.22);
 }
 
 .atom-oxygen {
-  width: 178px;
-  height: 178px;
+  width: 196px;
+  height: 196px;
   left: 50%;
-  top: 51%;
+  top: 54%;
   translate: -50% -50%;
   background:
-    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.96), transparent 10%),
-    radial-gradient(circle at 46% 44%, rgba(126, 255, 245, 0.98), rgba(42, 205, 255, 0.82) 46%, rgba(13, 131, 189, 0.82) 76%, rgba(3, 55, 96, 0.86) 100%);
-  transform: translateZ(44px);
+    radial-gradient(circle at 31% 21%, rgba(255, 255, 255, 0.96), transparent 11%),
+    radial-gradient(circle at 47% 46%, rgba(126, 255, 245, 1) 0%, rgba(30, 206, 250, 0.92) 42%, rgba(5, 103, 178, 0.90) 76%, rgba(1, 28, 68, 0.96) 100%);
+  transform: translateZ(76px);
+  animation: oxygenPulse 7.5s ease-in-out infinite;
 }
 
 .atom-hydrogen {
-  width: 108px;
-  height: 108px;
+  width: 116px;
+  height: 116px;
   background:
-    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.98), transparent 12%),
-    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.94), rgba(189, 248, 255, 0.76) 45%, rgba(93, 220, 255, 0.68) 72%, rgba(33, 141, 213, 0.62) 100%);
+    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 1), transparent 13%),
+    radial-gradient(circle at 48% 48%, rgba(255, 255, 255, 0.96) 0%, rgba(201, 249, 255, 0.88) 42%, rgba(106, 225, 255, 0.78) 73%, rgba(33, 118, 196, 0.82) 100%);
   box-shadow:
-    inset -18px -22px 34px rgba(0, 64, 96, 0.30),
-    inset 10px 12px 24px rgba(255, 255, 255, 0.70),
-    0 16px 42px rgba(0, 100, 140, 0.24),
-    0 0 44px rgba(230, 255, 255, 0.36);
+    inset -21px -25px 36px rgba(0, 31, 62, 0.38),
+    inset 11px 13px 28px rgba(255, 255, 255, 0.78),
+    0 20px 52px rgba(0, 18, 38, 0.32),
+    0 0 54px rgba(230, 255, 255, 0.36);
 }
 
 .atom-h-left {
-  left: 7%;
-  top: 18%;
-  transform: translateZ(18px);
-  animation: hydrogenBob 6.6s ease-in-out infinite;
+  left: 11%;
+  top: 22%;
+  transform: translateZ(26px) scale(0.98);
+  animation: hydrogenBobLeft 7s ease-in-out infinite;
 }
 
 .atom-h-right {
-  right: 6%;
-  top: 19%;
-  transform: translateZ(18px);
-  animation: hydrogenBob 6.6s ease-in-out infinite 900ms;
-}
-
-.bond {
-  left: 50%;
-  top: 50%;
-  width: 160px;
-  height: 24px;
-  transform-origin: 0 50%;
-  border-radius: 999px;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.82), rgba(157, 250, 255, 0.58), rgba(255, 255, 255, 0.34));
-  box-shadow:
-    0 0 24px rgba(141, 255, 245, 0.42),
-    inset 0 2px 0 rgba(255, 255, 255, 0.72),
-    inset 0 -8px 12px rgba(0, 94, 132, 0.18);
-  opacity: 0.86;
-  overflow: hidden;
-}
-
-.bond span {
-  position: absolute;
-  inset: 13% 18%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
-  filter: blur(1px);
-  animation: bondSheen 4.8s ease-in-out infinite;
-}
-
-.bond-left {
-  transform: rotate(224deg) translateX(62px) translateZ(10px);
-}
-
-.bond-right {
-  transform: rotate(316deg) translateX(62px) translateZ(10px);
-}
-
-.molecule-ring {
-  inset: 6%;
-  border: 1px solid rgba(232, 255, 255, 0.24);
-  border-radius: 999px;
-  box-shadow: 0 0 34px rgba(141, 255, 245, 0.14);
-  opacity: 0.88;
-}
-
-.ring-a {
-  transform: rotateX(72deg) rotateZ(-26deg) translateZ(-24px);
-}
-
-.ring-b {
-  transform: rotateX(62deg) rotateY(54deg) rotateZ(18deg) translateZ(-34px);
-  border-color: rgba(220, 255, 139, 0.20);
-}
-
-.ring-c {
-  transform: rotateX(78deg) rotateY(-42deg) rotateZ(54deg) translateZ(-44px);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.electron {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow: 0 0 20px rgba(141, 255, 245, 0.98), 0 0 34px rgba(255, 255, 255, 0.46);
-}
-
-.electron-a {
-  left: 50%;
-  top: 8%;
-  animation: electronOrbitA 5.6s linear infinite;
-}
-
-.electron-b {
-  left: 84%;
-  top: 50%;
-  animation: electronOrbitB 7.4s linear infinite;
-}
-
-.electron-c {
-  left: 16%;
-  top: 62%;
-  animation: electronOrbitC 8.8s linear infinite;
+  right: 8%;
+  top: 24%;
+  transform: translateZ(18px) scale(1.02);
+  animation: hydrogenBobRight 7s ease-in-out infinite 780ms;
 }
 
 @keyframes moleculeBreath {
-  0%, 100% { transform: scale(0.98) rotate(-1deg); opacity: 0.78; }
-  50% { transform: scale(1.045) rotate(1.2deg); opacity: 0.98; }
+  0%, 100% { transform: scale(0.98) rotate(-1deg); opacity: 0.62; }
+  50% { transform: scale(1.045) rotate(1.2deg); opacity: 0.86; }
 }
 
 @keyframes moleculeFloatSpin {
   0% {
-    transform: translate3d(0, 0, 0) rotateX(7deg) rotateY(-24deg) rotateZ(-2deg);
+    transform: translate3d(0, 0, 0) rotateX(12deg) rotateY(-28deg) rotateZ(-3deg);
   }
-  35% {
-    transform: translate3d(0, -18px, 20px) rotateX(14deg) rotateY(86deg) rotateZ(4deg);
+  30% {
+    transform: translate3d(0, -20px, 18px) rotateX(18deg) rotateY(78deg) rotateZ(3deg);
   }
-  70% {
-    transform: translate3d(0, 6px, 0) rotateX(2deg) rotateY(214deg) rotateZ(-5deg);
+  58% {
+    transform: translate3d(0, 8px, 4px) rotateX(6deg) rotateY(190deg) rotateZ(-6deg);
   }
   100% {
-    transform: translate3d(0, 0, 0) rotateX(7deg) rotateY(336deg) rotateZ(-2deg);
+    transform: translate3d(0, 0, 0) rotateX(12deg) rotateY(332deg) rotateZ(-3deg);
   }
 }
 
-@keyframes hydrogenBob {
-  0%, 100% { translate: 0 0; scale: 1; }
-  50% { translate: 0 -8px; scale: 1.035; }
+@keyframes oxygenPulse {
+  0%, 100% { filter: saturate(1.04) brightness(1); }
+  50% { filter: saturate(1.20) brightness(1.08); }
 }
 
-@keyframes bondSheen {
-  0%, 100% { transform: translateX(-55%); opacity: 0.24; }
-  50% { transform: translateX(55%); opacity: 0.72; }
+@keyframes hydrogenBobLeft {
+  0%, 100% { translate: 0 0; scale: 0.98; }
+  50% { translate: -6px -10px; scale: 1.03; }
 }
 
-@keyframes electronOrbitA {
-  0% { transform: rotate(0deg) translateX(154px) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(154px) rotate(-360deg); }
-}
-
-@keyframes electronOrbitB {
-  0% { transform: rotate(0deg) translateX(128px) rotate(0deg); }
-  100% { transform: rotate(-360deg) translateX(128px) rotate(360deg); }
-}
-
-@keyframes electronOrbitC {
-  0% { transform: rotate(0deg) translateX(108px) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(108px) rotate(-360deg); }
+@keyframes hydrogenBobRight {
+  0%, 100% { translate: 0 0; scale: 1.02; }
+  50% { translate: 7px -9px; scale: 1.06; }
 }
 
 .section {
@@ -672,7 +572,7 @@ main {
 
 .section-heading p:not(.eyebrow) {
   margin: 0;
-  color: var(--muted);
+  color: #dffbff;
   line-height: 1.65;
 }
 
@@ -688,7 +588,7 @@ main {
   border-radius: var(--radius-xl);
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.16), transparent 22%),
-    linear-gradient(180deg, var(--panel), rgba(5, 18, 30, 0.68));
+    linear-gradient(180deg, var(--panel), rgba(1, 13, 28, 0.78));
   box-shadow: var(--shadow);
   backdrop-filter: blur(22px) saturate(160%);
 }
@@ -704,7 +604,7 @@ main {
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(1, 18, 34, 0.38);
 }
 
 .doc-switcher {
@@ -759,7 +659,7 @@ select {
   color: var(--muted);
   text-align: center;
   font-variant-numeric: tabular-nums;
-  background: rgba(0, 0, 0, 0.16);
+  background: rgba(0, 11, 25, 0.42);
 }
 
 .pdf-status {
@@ -1073,20 +973,14 @@ select {
   }
 
   .atom-oxygen {
-    width: 138px;
-    height: 138px;
+    width: 146px;
+    height: 146px;
   }
 
   .atom-hydrogen {
-    width: 84px;
-    height: 84px;
+    width: 88px;
+    height: 88px;
   }
-
-  .bond {
-    width: 118px;
-    height: 18px;
-  }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1103,7 +997,7 @@ select {
   }
 
   .gl-canvas {
-    opacity: 0.35;
+    opacity: 0.46;
   }
 }
 

@@ -1,61 +1,94 @@
-/* Native WebGL crystalline water background for ACME Waters.
-   Uses relative shader files, with inline fallback when opened from file://.
+/* Native WebGL pool-caustics background for ACME Waters.
+   Uses relative shader files, with inline fallbacks for file:// and restrictive hosts.
 */
 
 (() => {
   "use strict";
 
   const FALLBACK_VERTEX = `precision mediump float;
-attribute vec4 aSeed;
-uniform float uTime;
-uniform float uPixelRatio;
-uniform vec2 uResolution;
-varying float vDepth;
-varying float vAura;
+attribute vec2 aPosition;
+varying vec2 vUv;
 void main() {
-  float id = aSeed.x;
-  float orbit = mix(0.16, 0.96, aSeed.y);
-  float speed = mix(0.16, 0.62, aSeed.z);
-  float tilt = mix(-0.72, 0.72, aSeed.w);
-  float t = uTime * speed + id * 6.2831853;
-  float z = 0.5 + 0.5 * sin(t * 0.73 + aSeed.w * 9.0);
-  vec2 pos;
-  pos.x = cos(t * 0.91 + sin(t * 0.17)) * orbit;
-  pos.y = sin(t * 1.13 + tilt) * orbit * 0.58;
-  pos += vec2(sin(uTime * 0.19 + id * 11.7), cos(uTime * 0.15 + id * 8.1)) * 0.06;
-  float aspect = uResolution.x / max(uResolution.y, 1.0);
-  pos.x /= max(aspect, 0.72);
-  float perspective = mix(0.62, 1.46, z);
-  gl_Position = vec4(pos * perspective, mix(-0.4, 0.34, z), 1.0);
-  gl_PointSize = mix(12.0, 78.0, z) * uPixelRatio;
-  vDepth = z;
-  vAura = aSeed.y;
+  vUv = aPosition * 0.5 + 0.5;
+  gl_Position = vec4(aPosition, 0.0, 1.0);
 }`;
 
   const FALLBACK_FRAGMENT = `precision mediump float;
-varying float vDepth;
-varying float vAura;
+uniform float uTime;
+uniform vec2 uResolution;
+varying vec2 vUv;
+
+float hash(vec2 p) {
+  p = fract(p * vec2(123.34, 345.45));
+  p += dot(p, p + 34.345);
+  return fract(p.x * p.y);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
+    mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+    u.y
+  );
+}
+
+float fbm(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  mat2 r = mat2(0.80, -0.60, 0.60, 0.80);
+  for (int i = 0; i < 5; i++) {
+    v += a * noise(p);
+    p = r * p * 2.02 + 3.7;
+    a *= 0.52;
+  }
+  return v;
+}
+
 void main() {
-  vec2 uv = gl_PointCoord * 2.0 - 1.0;
-  float d = length(uv);
-  float body = 1.0 - smoothstep(0.18, 1.0, d);
-  float shell = smoothstep(0.74, 0.98, d) * (1.0 - smoothstep(0.98, 1.03, d));
-  float highlight = 1.0 - smoothstep(0.0, 0.22, length(uv - vec2(-0.32, -0.38)));
-  vec3 crystal = vec3(0.78, 1.0, 0.98);
-  vec3 aqua = vec3(0.42, 1.0, 0.94);
-  vec3 lagoon = vec3(0.10, 0.74, 0.96);
-  vec3 depthBlue = vec3(0.02, 0.30, 0.56);
-  vec3 color = mix(mix(crystal, aqua, vAura), mix(lagoon, depthBlue, vDepth), smoothstep(0.34, 1.0, vDepth));
-  float alpha = body * 0.15 + shell * 0.48 + highlight * 0.22;
-  alpha *= mix(0.22, 0.70, vDepth);
-  if (d > 1.02 || alpha < 0.01) discard;
-  gl_FragColor = vec4(color + highlight * 0.22, alpha);
+  vec2 uv = vUv;
+  vec2 p = (uv - 0.5) * vec2(uResolution.x / max(uResolution.y, 1.0), 1.0);
+
+  float t = uTime * 0.18;
+  vec2 flowA = vec2(sin(t * 1.7), cos(t * 1.1)) * 0.16;
+  vec2 flowB = vec2(cos(t * 0.9), sin(t * 1.4)) * 0.12;
+
+  float n1 = fbm(p * 3.0 + flowA);
+  float n2 = fbm(p * 5.6 - flowB + n1 * 0.65);
+  float waveA = sin((p.x * 7.5 + n1 * 3.2 + uTime * 0.46));
+  float waveB = sin((p.y * 8.4 - n2 * 2.7 - uTime * 0.38));
+  float waveC = sin((p.x + p.y) * 9.6 + n2 * 3.1 + uTime * 0.22);
+
+  float caustic = pow(max(0.0, (waveA + waveB + waveC) / 3.0), 7.0);
+  caustic += pow(max(0.0, 1.0 - abs(waveA * waveB)), 5.5) * 0.14;
+  caustic *= smoothstep(0.02, 0.58, uv.y) * (1.0 - smoothstep(1.02, 0.60, length(p)));
+
+  float pool = smoothstep(0.92, 0.20, length(p + vec2(0.05, -0.03)));
+  float shimmer = smoothstep(0.48, 1.0, fbm(p * 12.0 + vec2(uTime * 0.12, -uTime * 0.06)));
+
+  vec3 aqua = vec3(0.14, 0.95, 1.00);
+  vec3 cyan = vec3(0.52, 1.00, 0.96);
+  vec3 pearl = vec3(0.94, 1.00, 0.96);
+  vec3 blue = vec3(0.02, 0.36, 0.72);
+
+  vec3 color = mix(blue, aqua, pool * 0.72 + n2 * 0.22);
+  color = mix(color, cyan, caustic * 0.58);
+  color += pearl * caustic * 0.72 + cyan * shimmer * 0.035;
+
+  float vignette = smoothstep(1.20, 0.18, length(p));
+  float alpha = 0.16 + caustic * 0.54 + shimmer * 0.035;
+  alpha *= mix(0.56, 1.0, vignette);
+  alpha *= smoothstep(0.0, 0.18, uv.y);
+
+  gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.72));
 }`;
 
   async function readText(url, fallback) {
     try {
       const response = await fetch(url, { cache: "force-cache" });
-      if (!response.ok) throw new Error("shader");
+      if (!response.ok) throw new Error("shader request failed");
       return await response.text();
     } catch (_) {
       return fallback;
@@ -67,7 +100,9 @@ void main() {
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const message = gl.getShaderInfoLog(shader);
       gl.deleteShader(shader);
+      console.warn("[ACME Waters] Shader WebGL no compilado.", message);
       return null;
     }
     return shader;
@@ -87,48 +122,29 @@ void main() {
     gl.deleteShader(fragment);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const message = gl.getProgramInfoLog(program);
       gl.deleteProgram(program);
+      console.warn("[ACME Waters] Programa WebGL no enlazado.", message);
       return null;
     }
     return program;
-  }
-
-  function mulberry32(seed) {
-    return function rand() {
-      let t = seed += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    };
-  }
-
-  function createSeeds(count) {
-    const rand = mulberry32(24062026);
-    const data = new Float32Array(count * 4);
-    for (let i = 0; i < count; i += 1) {
-      data[i * 4 + 0] = i / Math.max(count - 1, 1);
-      data[i * 4 + 1] = rand();
-      data[i * 4 + 2] = rand();
-      data[i * 4 + 3] = rand();
-    }
-    return data;
   }
 
   async function initEtherealField(options = {}) {
     const canvas = document.getElementById(options.canvasId || "gl-canvas");
     if (!canvas) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const gl = canvas.getContext("webgl", {
       alpha: true,
-      antialias: true,
+      antialias: false,
       depth: false,
-      powerPreference: "high-performance",
-      preserveDrawingBuffer: false
+      stencil: false,
+      premultipliedAlpha: true,
+      powerPreference: "high-performance"
     });
 
     if (!gl) {
-      canvas.style.display = "none";
+      console.warn("[ACME Waters] WebGL no disponible; se mantiene fondo CSS.");
       return;
     }
 
@@ -138,76 +154,71 @@ void main() {
     ]);
 
     const program = createProgram(gl, vertexSource, fragmentSource);
-    if (!program) {
-      canvas.style.display = "none";
-      return;
-    }
+    if (!program) return;
 
-    const aSeed = gl.getAttribLocation(program, "aSeed");
-    const uTime = gl.getUniformLocation(program, "uTime");
-    const uPixelRatio = gl.getUniformLocation(program, "uPixelRatio");
-    const uResolution = gl.getUniformLocation(program, "uResolution");
+    const positionLocation = gl.getAttribLocation(program, "aPosition");
+    const timeLocation = gl.getUniformLocation(program, "uTime");
+    const resolutionLocation = gl.getUniformLocation(program, "uResolution");
 
-    const particleCount = reducedMotion ? 90 : 320;
-    const seeds = createSeeds(particleCount);
-    const buffer = gl.createBuffer();
+    const vertices = new Float32Array([
+      -1, -1,
+       1, -1,
+      -1,  1,
+       1,  1
+    ]);
+
+    const vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     gl.useProgram(program);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, seeds, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(aSeed);
-    gl.vertexAttribPointer(aSeed, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     let width = 0;
     let height = 0;
-    let raf = 0;
-    let start = performance.now();
+    let running = true;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const nextWidth = Math.floor(window.innerWidth * dpr);
-      const nextHeight = Math.floor(window.innerHeight * dpr);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75);
+      const nextWidth = Math.max(1, Math.floor(canvas.clientWidth * pixelRatio));
+      const nextHeight = Math.max(1, Math.floor(canvas.clientHeight * pixelRatio));
       if (nextWidth === width && nextHeight === height) return;
 
       width = nextWidth;
       height = nextHeight;
       canvas.width = width;
       canvas.height = height;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
       gl.viewport(0, 0, width, height);
-      gl.uniform1f(uPixelRatio, dpr);
-      gl.uniform2f(uResolution, width, height);
     }
 
-    function frame(now) {
+    function render(now = 0) {
+      if (!running) return;
+
       resize();
-      const seconds = reducedMotion ? 12.0 : (now - start) * 0.001;
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.uniform1f(uTime, seconds);
-      gl.drawArrays(gl.POINTS, 0, particleCount);
+      gl.useProgram(program);
+      gl.uniform1f(timeLocation, reducedMotion ? 12.0 : now * 0.001);
+      gl.uniform2f(resolutionLocation, width, height);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-      if (!reducedMotion) {
-        raf = requestAnimationFrame(frame);
-      }
+      if (!reducedMotion) window.requestAnimationFrame(render);
     }
 
-    window.addEventListener("resize", resize, { passive: true });
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        cancelAnimationFrame(raf);
-      } else if (!reducedMotion) {
-        start = performance.now() - (performance.now() - start);
-        raf = requestAnimationFrame(frame);
-      }
+      running = document.visibilityState === "visible";
+      if (running && !reducedMotion) window.requestAnimationFrame(render);
     });
 
-    frame(performance.now());
+    window.addEventListener("resize", resize, { passive: true });
+    render(0);
   }
 
   window.initEtherealField = initEtherealField;
