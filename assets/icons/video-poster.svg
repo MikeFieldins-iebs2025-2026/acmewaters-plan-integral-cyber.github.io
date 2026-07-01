@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">El Escudo Ciberfísico</title>
+  <desc id="desc">Poster abstracto con gotas translúcidas y un botón de reproducción.</desc>
+  <defs>
+    <radialGradient id="bg1" cx="25%" cy="18%" r="72%">
+      <stop offset="0" stop-color="#9bfff4"/>
+      <stop offset=".32" stop-color="#236bff"/>
+      <stop offset="1" stop-color="#06111a"/>
+    </radialGradient>
+    <radialGradient id="bg2" cx="85%" cy="18%" r="55%">
+      <stop offset="0" stop-color="#ff78d7" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ff78d7" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg1)"/>
+  <rect width="1280" height="720" fill="url(#bg2)"/>
+  <g opacity=".45" filter="url(#soft)">
+    <circle cx="248" cy="198" r="92" fill="#fff"/>
+    <circle cx="960" cy="445" r="140" fill="#66fff2"/>
+    <circle cx="780" cy="178" r="78" fill="#ff88df"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-opacity=".26">
+    <ellipse cx="640" cy="360" rx="420" ry="136"/>
+    <ellipse cx="640" cy="360" rx="360" ry="260" transform="rotate(28 640 360)"/>
+    <ellipse cx="640" cy="360" rx="360" ry="260" transform="rotate(-28 640 360)"/>
+  </g>
+  <circle cx="640" cy="360" r="78" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-opacity=".55"/>
+  <path d="M618 316v88l76-44Z" fill="#fff"/>
+  <text x="80" y="115" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="800" fill="#b7ff64" letter-spacing="5">ACME WATERS</text>
+  <text x="80" y="620" font-family="Inter, system-ui, sans-serif" font-size="62" font-weight="900" fill="#fff">El Escudo Ciberfísico</text>
+  <text x="83" y="666" font-family="Inter, system-ui, sans-serif" font-size="25" font-weight="600" fill="#c8f7ff">Plan Integral de Ciberseguridad</text>
+</svg>

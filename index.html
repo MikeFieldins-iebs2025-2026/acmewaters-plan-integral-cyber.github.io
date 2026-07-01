@@ -2,181 +2,245 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#041a3d">
-  <meta name="description" content="Portal estático para consultar el Plan Integral de Ciberseguridad de ACME Waters, con visor PDF.js, vídeo embebido y visualización WebGL.">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07161f">
+  <meta name="description" content="Portal ejecutivo estático para consultar el Plan Integral de Ciberseguridad de ACME Waters.">
   <title>ACME Waters · Plan Integral de Ciberseguridad</title>
-  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="style.css" as="style">
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="./assets/icons/acme-drop-shield.svg" type="image/svg+xml">
+  <link rel="preload" href="./style.css" as="style">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
+  <script defer src="./gl/ethereal-field.js"></script>
+  <script defer src="./main.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#documentos">Saltar al visor de documentos</a>
+  <a class="skip-link" href="#visor">Saltar al visor documental</a>
 
-  <header class="site-hero" aria-labelledby="hero-title">
-    <canvas id="aeroScene" class="hero-webgl" aria-hidden="true"></canvas>
-    <div class="hero-orbit hero-orbit-a" aria-hidden="true"></div>
-    <div class="hero-orbit hero-orbit-b" aria-hidden="true"></div>
+  <canvas id="gl-canvas" class="gl-canvas" aria-hidden="true"></canvas>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
 
-    <nav class="topbar" aria-label="Navegación principal">
-      <a class="brand" href="#inicio" aria-label="ACME Waters · inicio">
-        <img src="assets/icons/acme-shield.svg" width="44" height="44" alt="">
+  <header class="site-header" role="banner">
+    <nav class="nav-shell" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="ACME Waters, inicio">
+        <img src="./assets/icons/acme-drop-shield.svg" alt="" width="38" height="38">
         <span>
           <strong>ACME Waters</strong>
-          <small>Cyberphysical Shield</small>
+          <small>Cyberfísico · Executive Deck</small>
         </span>
       </a>
-      <div class="nav-actions" role="list">
-        <a role="listitem" href="#documentos">Documentos</a>
-        <a role="listitem" href="#resumen">Resumen</a>
-        <a role="listitem" href="#multimedia">Vídeo</a>
+      <div class="nav-links" role="list">
+        <a href="#visor">Documentos</a>
+        <a href="#resumen">Resumen</a>
+        <a href="#multimedia">Vídeo</a>
       </div>
     </nav>
-
-    <section id="inicio" class="hero-copy">
-      <p class="eyebrow">Plan Integral de Ciberseguridad · Comité de dirección</p>
-      <h1 id="hero-title">Un escudo ciberfísico para el ciclo integral del agua.</h1>
-      <p class="hero-lead">Consulta ejecutiva, anexos técnicos y presentación audiovisual en una interfaz Frutiger Aero/Y2K: brillante, líquida y orientada a decisión.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#documentos">Abrir visor PDF</a>
-        <a class="btn btn-secondary" href="assets/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar resumen</a>
-      </div>
-    </section>
   </header>
 
-  <main>
-    <section class="layout-grid" aria-label="Documentación estratégica">
-      <article id="documentos" class="panel pdf-panel" aria-labelledby="pdf-title">
-        <div class="section-heading">
-          <p class="eyebrow">Visor único PDF.js</p>
-          <h2 id="pdf-title">Documentos del plan</h2>
-          <p>El resumen ejecutivo se carga por defecto. Puedes alternar entre documentos sin recargar la página.</p>
+  <main id="inicio">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Plan Integral de Ciberseguridad · Julio 2026</p>
+        <h1 id="hero-title">Una interfaz líquida para gobernar riesgo, continuidad y resiliencia.</h1>
+        <p class="hero-lead">
+          Consulta ejecutiva y técnica del plan de ACME Waters con visor PDF unificado, vídeo local y
+          visualizaciones etéreas inspiradas en infraestructuras críticas del ciclo del agua.
+        </p>
+        <div class="hero-actions" aria-label="Acciones principales">
+          <a class="button button-primary" href="#visor">Abrir visor</a>
+          <a class="button button-ghost" href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar resumen</a>
         </div>
+      </div>
 
-        <div class="doc-tabs" role="tablist" aria-label="Seleccionar documento PDF">
-          <button id="tab-main" class="tab is-active" type="button" role="tab" aria-selected="true" aria-controls="pdfViewer"
-                  data-doc="main">Resumen ejecutivo</button>
-          <button id="tab-annex" class="tab" type="button" role="tab" aria-selected="false" aria-controls="pdfViewer"
-                  data-doc="annex">Anexos técnicos</button>
+      <aside class="hero-orb" aria-label="Síntesis del enfoque">
+        <div class="orb-core">
+          <span class="orb-label">ACME</span>
+          <strong>5</strong>
+          <span>bloques integrados</span>
         </div>
-
-        <div class="pdf-toolbar" aria-label="Controles del visor PDF">
-          <button class="icon-btn" id="prevPage" type="button" aria-label="Página anterior">‹</button>
-          <span id="pageStatus" class="page-status" aria-live="polite">Página — / —</span>
-          <button class="icon-btn" id="nextPage" type="button" aria-label="Página siguiente">›</button>
-          <span class="toolbar-separator" aria-hidden="true"></span>
-          <button class="icon-btn" id="zoomOut" type="button" aria-label="Reducir zoom">−</button>
-          <button class="icon-btn" id="zoomIn" type="button" aria-label="Aumentar zoom">+</button>
-          <a id="downloadPdf" class="btn btn-download" href="assets/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar PDF</a>
-        </div>
-
-        <div id="pdfViewer" class="pdf-stage" tabindex="0" aria-label="Lienzo del visor PDF">
-          <canvas id="pdfCanvas" role="img" aria-label="Página PDF renderizada"></canvas>
-          <div id="pdfLoading" class="loading-card" role="status" aria-live="polite">
-            <span class="spinner" aria-hidden="true"></span>
-            Cargando documento…
-          </div>
-        </div>
-
-        <details class="accessible-text-card">
-          <summary>Texto accesible de la página actual</summary>
-          <div id="pdfTextExtract" class="pdf-text-extract" tabindex="0">El texto se cargará al renderizar la página.</div>
-        </details>
-      </article>
-
-      <aside id="resumen" class="panel insight-panel" aria-labelledby="summary-title">
-        <div class="section-heading">
-          <p class="eyebrow">Síntesis directiva · ≤ 150 palabras</p>
-          <h2 id="summary-title">Resumen ejecutivo</h2>
-        </div>
-        <p class="summary-copy">ACME Waters debe pasar de una seguridad reactiva a un modelo gobernado por riesgo, cumplimiento, continuidad y resiliencia. El plan integra ENS, NIST CSF 2.0, protección de datos y continuidad; separa gobierno y operación mediante DC/DIS; prioriza riesgos reales sobre CPD, identidad, cloud, proveedores, teletrabajo e IT/OT; y convierte esos riesgos en arquitectura, servicios y respuesta. La hoja de ruta trienal avanza de una base gobernable a cobertura y consolidación, para terminar en madurez, reporting, automatización controlada y pruebas integradas. La dirección debe aprobar prioridades, exigir evidencias, validar inversiones y tratar la automatización siempre subordinada a negocio, legalidad, seguridad operacional y recuperación.</p>
-
-        <figure class="svg-card" aria-labelledby="radar-title radar-desc">
-          <figcaption>
-            <strong id="radar-title">Lectura ejecutiva de prioridades</strong>
-            <span id="radar-desc">Seis capacidades conectadas por gobierno, evidencia y resiliencia.</span>
-          </figcaption>
-          <svg viewBox="0 0 420 280" role="img" aria-labelledby="radar-title radar-desc" focusable="false">
-            <defs>
-              <radialGradient id="bubbleGlow" cx="50%" cy="45%" r="70%">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity=".96"/>
-                <stop offset="45%" stop-color="#58f5ff" stop-opacity=".52"/>
-                <stop offset="100%" stop-color="#5b2cff" stop-opacity=".18"/>
-              </radialGradient>
-              <linearGradient id="aeroLine" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#63fff2"/>
-                <stop offset="55%" stop-color="#94ff61"/>
-                <stop offset="100%" stop-color="#ff66d8"/>
-              </linearGradient>
-            </defs>
-            <circle cx="210" cy="140" r="78" fill="url(#bubbleGlow)" stroke="rgba(255,255,255,.72)" stroke-width="2"/>
-            <text x="210" y="132" text-anchor="middle" class="svg-center">Gobierno</text>
-            <text x="210" y="154" text-anchor="middle" class="svg-center-sub">evidencias · riesgo</text>
-            <g stroke="url(#aeroLine)" stroke-width="3" stroke-linecap="round" fill="none" opacity=".9">
-              <path d="M210 62 L210 22"/>
-              <path d="M278 101 L340 64"/>
-              <path d="M278 179 L348 220"/>
-              <path d="M210 218 L210 258"/>
-              <path d="M142 179 L72 220"/>
-              <path d="M142 101 L80 64"/>
-            </g>
-            <g class="svg-node">
-              <circle cx="210" cy="22" r="19"/><text x="210" y="27" text-anchor="middle">SGSI</text>
-              <circle cx="340" cy="64" r="24"/><text x="340" y="69" text-anchor="middle">IAM</text>
-              <circle cx="348" cy="220" r="30"/><text x="348" y="218" text-anchor="middle">SOC</text><text x="348" y="232" text-anchor="middle">SIEM</text>
-              <circle cx="210" cy="258" r="24"/><text x="210" y="263" text-anchor="middle">CPD</text>
-              <circle cx="72" cy="220" r="32"/><text x="72" y="218" text-anchor="middle">Backups</text><text x="72" y="232" text-anchor="middle">RTO/RPO</text>
-              <circle cx="80" cy="64" r="29"/><text x="80" y="62" text-anchor="middle">CSIRT</text><text x="80" y="76" text-anchor="middle">Runbooks</text>
-            </g>
-          </svg>
-        </figure>
-
-        <div class="roadmap" aria-label="Roadmap ejecutivo a tres años">
-          <h3>Roadmap general</h3>
-          <ol>
-            <li><span>Año 1</span><strong>Base gobernable</strong><small>Inventario, identidad, SIEM/MDR, EDR, backups y proveedores críticos.</small></li>
-            <li><span>Año 2</span><strong>Cobertura</strong><small>SOAR inicial, segmentación, WAF/API, DLP, NDR y restauraciones críticas.</small></li>
-            <li><span>Año 3</span><strong>Madurez</strong><small>Reporting, automatización con aprobación humana, PAM extendido y pruebas integradas.</small></li>
-          </ol>
-        </div>
+        <ul class="orb-list">
+          <li>Estrategia</li>
+          <li>Organización</li>
+          <li>Riesgos</li>
+          <li>Arquitectura</li>
+          <li>Respuesta</li>
+        </ul>
       </aside>
     </section>
 
-    <section id="multimedia" class="panel media-panel" aria-labelledby="video-title">
+    <section id="visor" class="section document-workbench" aria-labelledby="visor-title">
       <div class="section-heading">
-        <p class="eyebrow">Presentación audiovisual</p>
-        <h2 id="video-title">El Escudo Ciberfísico</h2>
-        <p>Vídeo embebido desde Google Drive en modo preview, con carga diferida y sandbox sin permisos de descarga.</p>
+        <p class="eyebrow">Documentación estratégica</p>
+        <h2 id="visor-title">Visor único PDF.js</h2>
+        <p>Alterna entre el documento principal y los anexos técnicos sin recargar la página.</p>
       </div>
-      <div class="video-shell" oncontextmenu="return false">
-        <iframe id="driveFrame"
-          title="Vídeo El Escudo Ciberfísico"
-          data-src="https://drive.google.com/file/d/1nZS8UIR3XhwJWhs2n0uULykC_lauZdfR/preview"
-          loading="lazy"
-          allow="autoplay; encrypted-media"
-          sandbox="allow-scripts allow-same-origin allow-presentation"
-          referrerpolicy="no-referrer"
-          aria-describedby="video-note"></iframe>
+
+      <div class="workbench-grid">
+        <article class="glass-panel pdf-panel" aria-labelledby="pdf-current-title">
+          <div class="pdf-toolbar" aria-label="Controles del visor PDF">
+            <div class="doc-switcher" role="group" aria-label="Seleccionar documento">
+              <label for="document-select">Documento</label>
+              <select id="document-select">
+                <option value="executive">Resumen ejecutivo</option>
+                <option value="annexes">Anexos técnicos</option>
+              </select>
+            </div>
+
+            <div class="pdf-actions" role="group" aria-label="Acciones del documento">
+              <button id="prev-page" type="button" class="icon-button" aria-label="Página anterior">‹</button>
+              <span class="page-indicator" aria-live="polite">
+                <span id="page-num">1</span>/<span id="page-count">—</span>
+              </span>
+              <button id="next-page" type="button" class="icon-button" aria-label="Página siguiente">›</button>
+              <button id="zoom-out" type="button" class="icon-button" aria-label="Reducir zoom">−</button>
+              <button id="zoom-in" type="button" class="icon-button" aria-label="Ampliar zoom">+</button>
+              <a id="download-current" class="button button-small" href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar</a>
+            </div>
+          </div>
+
+          <div class="pdf-status" id="pdf-status" role="status" aria-live="polite">
+            Preparando visor PDF.js…
+          </div>
+
+          <h3 id="pdf-current-title" class="visually-hidden">Resumen ejecutivo</h3>
+          <div class="pdf-stage" id="pdf-stage">
+            <canvas id="pdf-canvas" aria-label="Página renderizada del documento PDF"></canvas>
+            <iframe
+              id="pdf-fallback"
+              title="Visor nativo de PDF"
+              hidden
+              loading="lazy"
+              src="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf"></iframe>
+          </div>
+        </article>
+
+        <aside id="resumen" class="glass-panel insight-panel" aria-labelledby="summary-title">
+          <p class="eyebrow">Resumen ejecutivo</p>
+          <h2 id="summary-title">La decisión directiva</h2>
+          <p class="executive-summary">
+            ACME Waters debe tratar la ciberseguridad como una capacidad corporativa medible, no
+            como compra aislada de herramientas. El plan protege continuidad del agua, confianza,
+            datos personales y recuperación mediante cinco bloques: estrategia alineada con ENS y
+            NIST CSF 2.0, modelo organizativo que separa gobierno y operación, análisis de riesgos,
+            arquitectura con roadmap trienal y respuesta a ciberataques con severidad, evidencias,
+            runbooks y retorno seguro. La dirección debe aprobarlo como marco integrado, con
+            responsables claros, métricas de eficacia, revisión anual, ejercicios de crisis y decisiones
+            vinculadas a riesgos, controles y resultados verificables.
+          </p>
+
+          <figure class="diagram-card" aria-labelledby="pillars-caption">
+            <svg class="constellation" viewBox="0 0 420 320" role="img" aria-labelledby="pillars-caption pillars-desc">
+              <title id="pillars-caption">Mapa etéreo de capacidades</title>
+              <desc id="pillars-desc">
+                Diagrama de siete pilares alrededor de la continuidad del servicio esencial.
+              </desc>
+              <defs>
+                <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.92"/>
+                  <stop offset="38%" stop-color="#83f7ff" stop-opacity="0.78"/>
+                  <stop offset="100%" stop-color="#6b5cff" stop-opacity="0.06"/>
+                </radialGradient>
+                <linearGradient id="lineGlow" x1="0%" x2="100%" y1="0%" y2="100%">
+                  <stop offset="0%" stop-color="#77fff1"/>
+                  <stop offset="55%" stop-color="#a99bff"/>
+                  <stop offset="100%" stop-color="#ff7adf"/>
+                </linearGradient>
+                <filter id="softBlur" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="7" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <g class="orbit-lines">
+                <ellipse cx="210" cy="160" rx="152" ry="88"/>
+                <ellipse cx="210" cy="160" rx="128" ry="122" transform="rotate(32 210 160)"/>
+                <ellipse cx="210" cy="160" rx="128" ry="122" transform="rotate(-32 210 160)"/>
+              </g>
+
+              <g class="links">
+                <path d="M210 160 L210 44"/>
+                <path d="M210 160 L322 80"/>
+                <path d="M210 160 L346 184"/>
+                <path d="M210 160 L276 282"/>
+                <path d="M210 160 L144 282"/>
+                <path d="M210 160 L74 184"/>
+                <path d="M210 160 L98 80"/>
+              </g>
+
+              <g class="node central" transform="translate(210 160)">
+                <circle r="52"/>
+                <text y="-4">Continuidad</text>
+                <text y="17">del agua</text>
+              </g>
+
+              <g class="node n1" transform="translate(210 44)"><circle r="29"/><text>Gobierno</text></g>
+              <g class="node n2" transform="translate(322 80)"><circle r="29"/><text>Activos</text></g>
+              <g class="node n3" transform="translate(346 184)"><circle r="29"/><text>Arquitectura</text></g>
+              <g class="node n4" transform="translate(276 282)"><circle r="29"/><text>Datos</text></g>
+              <g class="node n5" transform="translate(144 282)"><circle r="29"/><text>Detección</text></g>
+              <g class="node n6" transform="translate(74 184)"><circle r="29"/><text>Recuperación</text></g>
+              <g class="node n7" transform="translate(98 80)"><circle r="29"/><text>Cultura</text></g>
+            </svg>
+          </figure>
+
+          <div class="micro-roadmap" aria-label="Roadmap ejecutivo">
+            <div><span>Año 1</span><strong>Bases</strong><small>Gobierno, inventario, CPD, detección mínima</small></div>
+            <div><span>Año 2</span><strong>Consolidación</strong><small>Arquitectura, cloud, continuidad, métricas</small></div>
+            <div><span>Año 3</span><strong>Madurez</strong><small>Automatización controlada, ejercicios y mejora</small></div>
+          </div>
+        </aside>
       </div>
-      <p id="video-note" class="fine-print">Nota técnica: en una web estática no existe DRM. Se aplica sandbox sin <code>allow-downloads</code>, sin pop-ups y sin menú contextual local.</p>
+    </section>
+
+    <section id="multimedia" class="section media-section" aria-labelledby="media-title">
+      <div class="section-heading">
+        <p class="eyebrow">Presentación multimedia</p>
+        <h2 id="media-title">El Escudo Ciberfísico</h2>
+        <p>Reproductor local desde carpeta de assets, con descarga deshabilitada en la interfaz del navegador.</p>
+      </div>
+
+      <div class="glass-panel video-shell">
+        <video
+          id="briefing-video"
+          class="briefing-video"
+          controls
+          preload="none"
+          playsinline
+          disablepictureinpicture
+          controlsList="nodownload noplaybackrate"
+          poster="./assets/icons/video-poster.svg"
+          aria-label="Vídeo de presentación El Escudo Ciberfísico">
+          <source src="./assets/video/el-escudo-ciberfisico.mp4" type="video/mp4">
+          Tu navegador no puede reproducir este vídeo local.
+        </video>
+        <p class="media-note">
+          Nota técnica: en sitios estáticos no se puede impedir de forma absoluta la descarga si se inspecciona el recurso,
+          pero se han retirado los controles visibles de descarga y el menú contextual del reproductor.
+        </p>
+      </div>
     </section>
   </main>
 
-  <footer class="site-footer" aria-label="Pie de página">
+  <footer class="site-footer" role="contentinfo">
     <div>
       <strong>Licencia MIT</strong>
-      <p>Uso, copia, modificación y distribución permitidos, sin garantía. Consulta <a href="LICENSE">LICENSE</a>.</p>
+      <p>Uso, copia, modificación y distribución permitidos con conservación del aviso de copyright y licencia.</p>
     </div>
     <div>
-      <strong>Créditos</strong>
-      <p>Proyecto de <a href="https://www.linkedin.com/in/mikefieldins/" rel="noopener noreferrer" target="_blank">Mike Fieldins</a>. Coedición web: Lexor.</p>
-    </div>
-    <div>
-      <strong>Descargas</strong>
-      <p><a href="assets/ACME_Waters_Resumen_Ejecutivo.pdf" download>Resumen ejecutivo</a> · <a href="assets/ACME_Waters_Anexos_Técnicos.pdf" download>Anexos técnicos</a></p>
+      <p>
+        Autoría editorial:
+        <a href="https://www.linkedin.com/in/mikefieldins/" rel="noopener noreferrer" target="_blank">Mike Fieldins</a>
+        · Coedición web: Lexor.
+      </p>
+      <p class="footer-downloads">
+        <a href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar PDF principal</a>
+        <a href="./assets/docs/ACME_Waters_Anexos_Tecnicos.pdf" download>Descargar anexos</a>
+      </p>
     </div>
   </footer>
-
-  <script type="module" src="main.js"></script>
 </body>
 </html>

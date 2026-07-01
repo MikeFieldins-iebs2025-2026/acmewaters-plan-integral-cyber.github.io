@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">ACME Waters cyber shield</title>
+  <desc id="desc">Drop shield icon with luminous gradients.</desc>
+  <defs>
+    <linearGradient id="g" x1="18" y1="10" x2="110" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".22" stop-color="#62fff1"/>
+      <stop offset=".55" stop-color="#49c8ff"/>
+      <stop offset="1" stop-color="#ff78d7"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="34%" cy="22%" r="58%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset=".35" stop-color="#fff" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+  <path d="M64 8c19 24 37 43 37 70 0 24-16 42-37 42S27 102 27 78C27 51 45 32 64 8Z" fill="url(#g)"/>
+  <path d="M64 21c14 18 27 34 27 56 0 18-11 31-27 31S37 95 37 77c0-22 13-38 27-56Z" fill="#07161f" opacity=".72"/>
+  <path d="M64 37l24 11v21c0 18-10 29-24 36-14-7-24-18-24-36V48l24-11Z" fill="url(#g)" opacity=".92"/>
+  <path d="M64 48v45c8-5 14-13 14-25V55l-14-7Z" fill="#041017" opacity=".38"/>
+  <ellipse cx="48" cy="34" rx="18" ry="10" fill="url(#shine)" filter="url(#blur)"/>
+  <path d="M51 67l9 9 20-24" fill="none" stroke="#06111a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
