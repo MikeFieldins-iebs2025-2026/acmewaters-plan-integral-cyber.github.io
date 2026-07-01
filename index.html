@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07161f">
+  <meta name="theme-color" content="#42dfff">
   <meta name="description" content="Portal ejecutivo estático para consultar el Plan Integral de Ciberseguridad de ACME Waters.">
   <title>ACME Waters · Plan Integral de Ciberseguridad</title>
   <link rel="icon" href="./assets/icons/acme-drop-shield.svg" type="image/svg+xml">
@@ -53,35 +53,22 @@
         </div>
       </div>
 
-      <aside class="hero-molecule" aria-label="Molécula de agua H2O animada como metáfora del escudo ciberfísico">
-        <div class="molecule-halo" aria-hidden="true"></div>
-        <div class="molecule-stage" aria-hidden="true">
-          <div class="molecule-assembly">
-            <span class="bond bond-left"></span>
-            <span class="bond bond-right"></span>
-            <span class="atom atom-o"><span>O</span></span>
-            <span class="atom atom-h atom-h-left"><span>H</span></span>
-            <span class="atom atom-h atom-h-right"><span>H</span></span>
-            <span class="electron-ring ring-a"></span>
-            <span class="electron-ring ring-b"></span>
-            <span class="electron-ring ring-c"></span>
-            <span class="molecule-spark spark-a"></span>
-            <span class="molecule-spark spark-b"></span>
-            <span class="molecule-spark spark-c"></span>
-          </div>
+      <aside class="hero-molecule" aria-label="Molécula de agua tridimensional animada">
+        <div class="molecule-shell" aria-hidden="true">
+          <span class="molecule-aura aura-a"></span>
+          <span class="molecule-aura aura-b"></span>
+          <span class="molecule-ring ring-a"></span>
+          <span class="molecule-ring ring-b"></span>
+          <span class="molecule-ring ring-c"></span>
+          <span class="bond bond-left"><span></span></span>
+          <span class="bond bond-right"><span></span></span>
+          <span class="atom atom-oxygen"></span>
+          <span class="atom atom-hydrogen atom-h-left"></span>
+          <span class="atom atom-hydrogen atom-h-right"></span>
+          <span class="electron electron-a"></span>
+          <span class="electron electron-b"></span>
+          <span class="electron electron-c"></span>
         </div>
-        <div class="molecule-caption">
-          <span class="orb-label">H<sub>2</sub>O</span>
-          <strong>Continuidad líquida</strong>
-          <small>Gobierno, riesgo y respuesta orbitando el servicio esencial.</small>
-        </div>
-        <ul class="molecule-tags" aria-label="Bloques integrados">
-          <li>Estrategia</li>
-          <li>Organización</li>
-          <li>Riesgos</li>
-          <li>Arquitectura</li>
-          <li>Respuesta</li>
-        </ul>
       </aside>
     </section>
 
@@ -115,11 +102,11 @@
             </div>
           </div>
 
-          <div class="pdf-status" id="pdf-status" hidden></div>
+          <div class="pdf-status" id="pdf-status" aria-hidden="true" hidden></div>
 
           <h3 id="pdf-current-title" class="visually-hidden">Resumen ejecutivo</h3>
           <div class="pdf-stage" id="pdf-stage">
-            <canvas id="pdf-canvas" aria-label="Página renderizada del documento PDF"></canvas>
+            <canvas id="pdf-canvas" hidden aria-label="Página renderizada del documento PDF"></canvas>
             <iframe
               id="pdf-fallback"
               title="Visor nativo de PDF"
@@ -214,7 +201,7 @@
       <div class="section-heading">
         <p class="eyebrow">Presentación multimedia</p>
         <h2 id="media-title">El Escudo Ciberfísico</h2>
-        <p>Reproductor local desde carpeta de assets, con descarga deshabilitada en la interfaz del navegador.</p>
+        <p>Reproductor local desde carpeta de assets, integrado en la misma experiencia visual.</p>
       </div>
 
       <div class="glass-panel video-shell">
@@ -231,7 +218,6 @@
           <source src="./assets/video/el-escudo-ciberfisico.mp4" type="video/mp4">
           Tu navegador no puede reproducir este vídeo local.
         </video>
-
       </div>
     </section>
   </main>
