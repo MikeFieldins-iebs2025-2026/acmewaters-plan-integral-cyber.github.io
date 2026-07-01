@@ -1,4 +1,4 @@
-/* Native WebGL slow pool-water shadow / caustics background for ACME Waters v9.
+/* Native WebGL slow pool-water shadow / caustics background for ACME Waters v10.
    Optimized with capped DPR, maximum render edge, throttled FPS and paused animation
    when the tab is hidden. Uses relative shader files with inline fallbacks.
 */
@@ -7,6 +7,14 @@
   "use strict";
 
   const STATIC_TIME = 18.0;
+  const ACME_BUILD = window.ACME_BUILD || "v10-20260701-cache-bust";
+
+  function versionedResource(url) {
+    if (!url || /^data:/i.test(url)) return url;
+    if (/[?&]v=/.test(url)) return url;
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${encodeURIComponent(ACME_BUILD)}`;
+  }
 
   const FALLBACK_VERTEX = `precision mediump float;
 attribute vec2 aPosition;
@@ -116,7 +124,7 @@ void main() {
 
   async function readText(url, fallback) {
     try {
-      const response = await fetch(url, { cache: "force-cache" });
+      const response = await fetch(versionedResource(url), { cache: "no-cache" });
       if (!response.ok) throw new Error("shader request failed");
       return await response.text();
     } catch (_) {

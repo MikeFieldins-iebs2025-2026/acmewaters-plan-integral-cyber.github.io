@@ -1,4 +1,4 @@
-/* ACME Waters · Portal JS v9
+/* ACME Waters · Portal JS v10
    - PDF.js single viewer with native fallback.
    - Relative asset paths only.
    - Local video compatibility sources + download UI mitigation.
@@ -8,6 +8,14 @@
 
 (() => {
   "use strict";
+
+  const ACME_BUILD = window.ACME_BUILD || "v10-20260701-cache-bust";
+
+  function versionedResource(url) {
+    if (!url || /^data:/i.test(url)) return url;
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${encodeURIComponent(ACME_BUILD)}`;
+  }
 
   window.ACME_MAIN_WILL_INIT_EFFECTS = true;
 
@@ -387,8 +395,8 @@
       if (effectsState.compatible && typeof window.initEtherealField === "function") {
         effectsState.field = await window.initEtherealField({
           canvasId: "gl-canvas",
-          vertexUrl: "./gl/field.vert",
-          fragmentUrl: "./gl/field.frag",
+          vertexUrl: versionedResource("./gl/field.vert"),
+          fragmentUrl: versionedResource("./gl/field.frag"),
           active: effectsState.active,
           ...performanceProfile.field
         });

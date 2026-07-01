@@ -1,4 +1,4 @@
-/* ACME Waters · WebGL H2O molecule v9
+/* ACME Waters · WebGL H2O molecule v10
    Renders the hero molecule as actual SDF 3D primitives:
    3 spheres + 2 finite cylinders, with dynamic/static modes controlled from main.js.
    Optimized with capped DPR, FPS throttling and viewport-aware pause.
