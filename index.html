@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#041a3d">
+  <meta name="description" content="Portal estático para consultar el Plan Integral de Ciberseguridad de ACME Waters, con visor PDF.js, vídeo embebido y visualización WebGL.">
+  <title>ACME Waters · Plan Integral de Ciberseguridad</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="style.css" as="style">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#documentos">Saltar al visor de documentos</a>
+
+  <header class="site-hero" aria-labelledby="hero-title">
+    <canvas id="aeroScene" class="hero-webgl" aria-hidden="true"></canvas>
+    <div class="hero-orbit hero-orbit-a" aria-hidden="true"></div>
+    <div class="hero-orbit hero-orbit-b" aria-hidden="true"></div>
+
+    <nav class="topbar" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="ACME Waters · inicio">
+        <img src="assets/icons/acme-shield.svg" width="44" height="44" alt="">
+        <span>
+          <strong>ACME Waters</strong>
+          <small>Cyberphysical Shield</small>
+        </span>
+      </a>
+      <div class="nav-actions" role="list">
+        <a role="listitem" href="#documentos">Documentos</a>
+        <a role="listitem" href="#resumen">Resumen</a>
+        <a role="listitem" href="#multimedia">Vídeo</a>
+      </div>
+    </nav>
+
+    <section id="inicio" class="hero-copy">
+      <p class="eyebrow">Plan Integral de Ciberseguridad · Comité de dirección</p>
+      <h1 id="hero-title">Un escudo ciberfísico para el ciclo integral del agua.</h1>
+      <p class="hero-lead">Consulta ejecutiva, anexos técnicos y presentación audiovisual en una interfaz Frutiger Aero/Y2K: brillante, líquida y orientada a decisión.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#documentos">Abrir visor PDF</a>
+        <a class="btn btn-secondary" href="assets/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar resumen</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="layout-grid" aria-label="Documentación estratégica">
+      <article id="documentos" class="panel pdf-panel" aria-labelledby="pdf-title">
+        <div class="section-heading">
+          <p class="eyebrow">Visor único PDF.js</p>
+          <h2 id="pdf-title">Documentos del plan</h2>
+          <p>El resumen ejecutivo se carga por defecto. Puedes alternar entre documentos sin recargar la página.</p>
+        </div>
+
+        <div class="doc-tabs" role="tablist" aria-label="Seleccionar documento PDF">
+          <button id="tab-main" class="tab is-active" type="button" role="tab" aria-selected="true" aria-controls="pdfViewer"
+                  data-doc="main">Resumen ejecutivo</button>
+          <button id="tab-annex" class="tab" type="button" role="tab" aria-selected="false" aria-controls="pdfViewer"
+                  data-doc="annex">Anexos técnicos</button>
+        </div>
+
+        <div class="pdf-toolbar" aria-label="Controles del visor PDF">
+          <button class="icon-btn" id="prevPage" type="button" aria-label="Página anterior">‹</button>
+          <span id="pageStatus" class="page-status" aria-live="polite">Página — / —</span>
+          <button class="icon-btn" id="nextPage" type="button" aria-label="Página siguiente">›</button>
+          <span class="toolbar-separator" aria-hidden="true"></span>
+          <button class="icon-btn" id="zoomOut" type="button" aria-label="Reducir zoom">−</button>
+          <button class="icon-btn" id="zoomIn" type="button" aria-label="Aumentar zoom">+</button>
+          <a id="downloadPdf" class="btn btn-download" href="assets/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar PDF</a>
+        </div>
+
+        <div id="pdfViewer" class="pdf-stage" tabindex="0" aria-label="Lienzo del visor PDF">
+          <canvas id="pdfCanvas" role="img" aria-label="Página PDF renderizada"></canvas>
+          <div id="pdfLoading" class="loading-card" role="status" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            Cargando documento…
+          </div>
+        </div>
+
+        <details class="accessible-text-card">
+          <summary>Texto accesible de la página actual</summary>
+          <div id="pdfTextExtract" class="pdf-text-extract" tabindex="0">El texto se cargará al renderizar la página.</div>
+        </details>
+      </article>
+
+      <aside id="resumen" class="panel insight-panel" aria-labelledby="summary-title">
+        <div class="section-heading">
+          <p class="eyebrow">Síntesis directiva · ≤ 150 palabras</p>
+          <h2 id="summary-title">Resumen ejecutivo</h2>
+        </div>
+        <p class="summary-copy">ACME Waters debe pasar de una seguridad reactiva a un modelo gobernado por riesgo, cumplimiento, continuidad y resiliencia. El plan integra ENS, NIST CSF 2.0, protección de datos y continuidad; separa gobierno y operación mediante DC/DIS; prioriza riesgos reales sobre CPD, identidad, cloud, proveedores, teletrabajo e IT/OT; y convierte esos riesgos en arquitectura, servicios y respuesta. La hoja de ruta trienal avanza de una base gobernable a cobertura y consolidación, para terminar en madurez, reporting, automatización controlada y pruebas integradas. La dirección debe aprobar prioridades, exigir evidencias, validar inversiones y tratar la automatización siempre subordinada a negocio, legalidad, seguridad operacional y recuperación.</p>
+
+        <figure class="svg-card" aria-labelledby="radar-title radar-desc">
+          <figcaption>
+            <strong id="radar-title">Lectura ejecutiva de prioridades</strong>
+            <span id="radar-desc">Seis capacidades conectadas por gobierno, evidencia y resiliencia.</span>
+          </figcaption>
+          <svg viewBox="0 0 420 280" role="img" aria-labelledby="radar-title radar-desc" focusable="false">
+            <defs>
+              <radialGradient id="bubbleGlow" cx="50%" cy="45%" r="70%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity=".96"/>
+                <stop offset="45%" stop-color="#58f5ff" stop-opacity=".52"/>
+                <stop offset="100%" stop-color="#5b2cff" stop-opacity=".18"/>
+              </radialGradient>
+              <linearGradient id="aeroLine" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#63fff2"/>
+                <stop offset="55%" stop-color="#94ff61"/>
+                <stop offset="100%" stop-color="#ff66d8"/>
+              </linearGradient>
+            </defs>
+            <circle cx="210" cy="140" r="78" fill="url(#bubbleGlow)" stroke="rgba(255,255,255,.72)" stroke-width="2"/>
+            <text x="210" y="132" text-anchor="middle" class="svg-center">Gobierno</text>
+            <text x="210" y="154" text-anchor="middle" class="svg-center-sub">evidencias · riesgo</text>
+            <g stroke="url(#aeroLine)" stroke-width="3" stroke-linecap="round" fill="none" opacity=".9">
+              <path d="M210 62 L210 22"/>
+              <path d="M278 101 L340 64"/>
+              <path d="M278 179 L348 220"/>
+              <path d="M210 218 L210 258"/>
+              <path d="M142 179 L72 220"/>
+              <path d="M142 101 L80 64"/>
+            </g>
+            <g class="svg-node">
+              <circle cx="210" cy="22" r="19"/><text x="210" y="27" text-anchor="middle">SGSI</text>
+              <circle cx="340" cy="64" r="24"/><text x="340" y="69" text-anchor="middle">IAM</text>
+              <circle cx="348" cy="220" r="30"/><text x="348" y="218" text-anchor="middle">SOC</text><text x="348" y="232" text-anchor="middle">SIEM</text>
+              <circle cx="210" cy="258" r="24"/><text x="210" y="263" text-anchor="middle">CPD</text>
+              <circle cx="72" cy="220" r="32"/><text x="72" y="218" text-anchor="middle">Backups</text><text x="72" y="232" text-anchor="middle">RTO/RPO</text>
+              <circle cx="80" cy="64" r="29"/><text x="80" y="62" text-anchor="middle">CSIRT</text><text x="80" y="76" text-anchor="middle">Runbooks</text>
+            </g>
+          </svg>
+        </figure>
+
+        <div class="roadmap" aria-label="Roadmap ejecutivo a tres años">
+          <h3>Roadmap general</h3>
+          <ol>
+            <li><span>Año 1</span><strong>Base gobernable</strong><small>Inventario, identidad, SIEM/MDR, EDR, backups y proveedores críticos.</small></li>
+            <li><span>Año 2</span><strong>Cobertura</strong><small>SOAR inicial, segmentación, WAF/API, DLP, NDR y restauraciones críticas.</small></li>
+            <li><span>Año 3</span><strong>Madurez</strong><small>Reporting, automatización con aprobación humana, PAM extendido y pruebas integradas.</small></li>
+          </ol>
+        </div>
+      </aside>
+    </section>
+
+    <section id="multimedia" class="panel media-panel" aria-labelledby="video-title">
+      <div class="section-heading">
+        <p class="eyebrow">Presentación audiovisual</p>
+        <h2 id="video-title">El Escudo Ciberfísico</h2>
+        <p>Vídeo embebido desde Google Drive en modo preview, con carga diferida y sandbox sin permisos de descarga.</p>
+      </div>
+      <div class="video-shell" oncontextmenu="return false">
+        <iframe id="driveFrame"
+          title="Vídeo El Escudo Ciberfísico"
+          data-src="https://drive.google.com/file/d/1nZS8UIR3XhwJWhs2n0uULykC_lauZdfR/preview"
+          loading="lazy"
+          allow="autoplay; encrypted-media"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
+          referrerpolicy="no-referrer"
+          aria-describedby="video-note"></iframe>
+      </div>
+      <p id="video-note" class="fine-print">Nota técnica: en una web estática no existe DRM. Se aplica sandbox sin <code>allow-downloads</code>, sin pop-ups y sin menú contextual local.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer" aria-label="Pie de página">
+    <div>
+      <strong>Licencia MIT</strong>
+      <p>Uso, copia, modificación y distribución permitidos, sin garantía. Consulta <a href="LICENSE">LICENSE</a>.</p>
+    </div>
+    <div>
+      <strong>Créditos</strong>
+      <p>Proyecto de <a href="https://www.linkedin.com/in/mikefieldins/" rel="noopener noreferrer" target="_blank">Mike Fieldins</a>. Coedición web: Lexor.</p>
+    </div>
+    <div>
+      <strong>Descargas</strong>
+      <p><a href="assets/ACME_Waters_Resumen_Ejecutivo.pdf" download>Resumen ejecutivo</a> · <a href="assets/ACME_Waters_Anexos_Técnicos.pdf" download>Anexos técnicos</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
