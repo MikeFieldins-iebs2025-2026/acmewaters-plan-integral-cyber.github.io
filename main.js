@@ -1,12 +1,15 @@
-/* ACME Waters · Portal JS
+/* ACME Waters · Portal JS v9
    - PDF.js single viewer with native fallback.
    - Relative asset paths only.
-   - Local video download UI mitigation.
-   - PDF links open in a new tab with relative URLs.
+   - Local video compatibility sources + download UI mitigation.
+   - OpenGL effects toggle: dynamic when enabled, static when disabled.
+   - Adaptive WebGL quality profile: DPR caps, throttled FPS and idle-friendly init.
 */
 
 (() => {
   "use strict";
+
+  window.ACME_MAIN_WILL_INIT_EFFECTS = true;
 
   const DOCUMENTS = {
     executive: {
@@ -31,6 +34,14 @@
     resizeTimer: null
   };
 
+  const effectsState = {
+    compatible: true,
+    active: true,
+    reason: "",
+    field: null,
+    molecule: null
+  };
+
   const $ = (selector) => document.querySelector(selector);
 
   const els = {
@@ -47,13 +58,24 @@
     fallback: $("#pdf-fallback"),
     title: $("#pdf-current-title"),
     stage: $("#pdf-stage"),
-    video: $("#briefing-video")
+    video: $("#briefing-video"),
+    videoFallback: $("#video-fallback"),
+    videoShell: $(".video-shell"),
+    effectsToggle: $("#effects-toggle"),
+    effectsToggleLabel: $("#effects-toggle-label")
   };
 
   function setStatus(message, stateName = "ready") {
+    // Estado interno sin salida visual: la interfaz usa el visor nativo como fallback silencioso.
     if (!els.status) return;
     els.status.textContent = message;
     els.status.dataset.state = stateName;
+  }
+
+  function traceViewerFallback(reason) {
+    if (window.console && typeof window.console.warn === "function") {
+      window.console.warn("[ACME Waters] PDF.js no disponible; visor nativo activado.", reason);
+    }
   }
 
   function activeDocument() {
@@ -75,22 +97,30 @@
   function showNativePdfFallback(reason) {
     console.warn("[ACME Waters] PDF.js no disponible; se activa visor nativo.", { reason });
     const doc = activeDocument();
-    if (els.canvas) els.canvas.hidden = true;
+    traceViewerFallback(reason);
+    if (els.canvas) {
+      els.canvas.hidden = true;
+      els.canvas.removeAttribute("aria-label");
+      els.canvas.width = 0;
+      els.canvas.height = 0;
+      els.canvas.style.width = "";
+      els.canvas.style.height = "";
+    }
     if (els.fallback) {
       els.fallback.hidden = false;
       els.fallback.src = doc.url;
     }
     state.pdfDoc = null;
-    els.pageNum.textContent = "—";
-    els.pageCount.textContent = "—";
-    setStatus(
-      `Modo visor nativo activado. PDF.js no está disponible o el navegador bloqueó el acceso local (${reason}).`,
-      "error"
-    );
+    if (els.pageNum) els.pageNum.textContent = "—";
+    if (els.pageCount) els.pageCount.textContent = "—";
+    setStatus("Visor nativo activado.", "error");
   }
 
   function showPdfCanvas() {
-    if (els.canvas) els.canvas.hidden = false;
+    if (els.canvas) {
+      els.canvas.hidden = false;
+      els.canvas.setAttribute("aria-label", "Página renderizada del documento PDF");
+    }
     if (els.fallback) els.fallback.hidden = true;
   }
 
@@ -231,24 +261,165 @@
     // Reinforce attributes after browser hydration.
     video.setAttribute("controlsList", "nodownload noplaybackrate");
     video.setAttribute("disablePictureInPicture", "");
-    video.setAttribute("preload", "none");
+    video.setAttribute("preload", "metadata");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+
+    const canMp4 = video.canPlayType("video/mp4");
+    const canWebm = video.canPlayType("video/webm");
+    if (!canMp4 && !canWebm) {
+      els.videoFallback.hidden = false;
+      els.videoShell?.classList.add("is-error");
+      console.warn("[ACME Waters] El navegador no anuncia soporte para MP4 ni WebM.");
+    }
+
+    video.addEventListener("error", () => {
+      if (els.videoFallback) els.videoFallback.hidden = false;
+      els.videoShell?.classList.add("is-error");
+      console.warn("[ACME Waters] Error de reproducción de vídeo local.", video.error);
+    });
+
+    video.addEventListener("loadedmetadata", () => {
+      if (els.videoFallback) els.videoFallback.hidden = true;
+      els.videoShell?.classList.remove("is-error");
+    });
+  }
+
+  function resolveEffectsConfig() {
+    const config = window.ACME_EFFECTS_CONFIG || {};
+    const compatible = typeof config.compatible === "boolean" ? config.compatible : true;
+    const defaultActive = typeof config.defaultActive === "boolean" ? config.defaultActive : compatible;
+    effectsState.compatible = compatible;
+    effectsState.active = compatible && defaultActive;
+    effectsState.reason = config.reason || "";
+  }
+
+  function getEffectsPerformanceProfile() {
+    const config = window.ACME_EFFECTS_CONFIG || {};
+    const dpr = window.devicePixelRatio || 1;
+    const compactViewport = Math.min(window.innerWidth || 1024, window.innerHeight || 768) < 680;
+    const constrained =
+      Boolean(config.saveData) ||
+      Boolean(config.lowCores) ||
+      Boolean(config.lowMemory) ||
+      Boolean(config.reducedMotion) ||
+      (compactViewport && dpr > 1.75);
+
+    return {
+      constrained,
+      field: {
+        maxDpr: constrained ? 0.9 : 1.15,
+        targetFPS: constrained ? 20 : 30,
+        maxEdge: constrained ? 1280 : 1920
+      },
+      molecule: {
+        maxDpr: constrained ? 1.0 : 1.35,
+        targetFPS: constrained ? 24 : 42,
+        maxEdge: constrained ? 540 : 780,
+        pauseWhenOutsideViewport: true
+      }
+    };
+  }
+
+  function whenIdle(callback, timeout = 700) {
+    if ("requestIdleCallback" in window) {
+      return window.requestIdleCallback(callback, { timeout });
+    }
+    return window.setTimeout(callback, Math.min(timeout, 180));
+  }
+
+  function updateEffectsUi() {
+    document.body.classList.toggle("effects-on", effectsState.active && effectsState.compatible);
+    document.body.classList.toggle("effects-off", !effectsState.active || !effectsState.compatible);
+
+    const toggle = els.effectsToggle;
+    if (!toggle) return;
+
+    toggle.disabled = !effectsState.compatible;
+    toggle.setAttribute("aria-pressed", String(effectsState.active && effectsState.compatible));
+
+    if (!effectsState.compatible) {
+      toggle.title = effectsState.reason || "WebGL no disponible en este navegador.";
+      toggle.setAttribute("aria-label", "Efectos OpenGL no disponibles");
+      if (els.effectsToggleLabel) els.effectsToggleLabel.textContent = "Efectos no disponibles";
+      return;
+    }
+
+    toggle.title = effectsState.active
+      ? "Desactivar animaciones OpenGL"
+      : "Activar animaciones OpenGL";
+    toggle.setAttribute(
+      "aria-label",
+      effectsState.active ? "Desactivar efectos OpenGL" : "Activar efectos OpenGL"
+    );
+    if (els.effectsToggleLabel) {
+      els.effectsToggleLabel.textContent = effectsState.active ? "Efectos ON" : "Efectos OFF";
+    }
+  }
+
+  function setEffectsActive(nextActive) {
+    if (!effectsState.compatible) return;
+    effectsState.active = Boolean(nextActive);
+
+    effectsState.field?.setActive?.(effectsState.active);
+    effectsState.molecule?.setActive?.(effectsState.active);
+    updateEffectsUi();
+  }
+
+  async function initEffectsControls() {
+    resolveEffectsConfig();
+    updateEffectsUi();
+
+    const performanceProfile = getEffectsPerformanceProfile();
+
+    els.effectsToggle?.addEventListener("click", () => {
+      setEffectsActive(!effectsState.active);
+    });
+
+    if (typeof window.initMolecule === "function") {
+      effectsState.molecule = window.initMolecule({
+        active: effectsState.active,
+        ...performanceProfile.molecule
+      });
+    }
+
+    const startField = async () => {
+      if (effectsState.compatible && typeof window.initEtherealField === "function") {
+        effectsState.field = await window.initEtherealField({
+          canvasId: "gl-canvas",
+          vertexUrl: "./gl/field.vert",
+          fragmentUrl: "./gl/field.frag",
+          active: effectsState.active,
+          ...performanceProfile.field
+        });
+
+        if (effectsState.field && effectsState.field.supported === false) {
+          effectsState.compatible = false;
+          effectsState.active = false;
+          effectsState.reason = "WebGL no disponible para el fondo.";
+          effectsState.molecule?.setActive?.(false);
+        }
+
+        updateEffectsUi();
+        if (effectsState.compatible) {
+          setEffectsActive(effectsState.active);
+        }
+      } else {
+        updateEffectsUi();
+      }
+    };
+
+    whenIdle(startField);
   }
 
   function init() {
     updateDocumentUi();
     bindPdfControls();
     bindVideoMitigations();
+    initEffectsControls();
 
     // Wait one tick so the deferred PDF.js script has a chance to register.
     window.setTimeout(() => loadPdf("executive"), 0);
-
-    if (typeof window.initEtherealField === "function") {
-      window.initEtherealField({
-        canvasId: "gl-canvas",
-        vertexUrl: "./gl/field.vert",
-        fragmentUrl: "./gl/field.frag"
-      });
-    }
   }
 
   if (document.readyState === "loading") {

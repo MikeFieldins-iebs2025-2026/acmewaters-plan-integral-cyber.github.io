@@ -1,26 +1,27 @@
-/* ACME Waters · Cyber Portal v7 incremental
-   - H2O molecule rendered as independent WebGL/CSS 3D primitives: 3 spheres + 2 cylinders.
-   - Background layering fixed so the swimming-pool caustics shader remains visible.
-   - Typography/accent contrast recalibrated for the darker crystalline-water palette.
+/* ACME Waters · Cyber Portal v9 incremental
+   - Adds an OpenGL effects toggle with static fallback states.
+   - Adds a translucent green/turquoise water tint over the pool-caustics background.
+   - Re-encodes local video assets for wider browser compatibility.
+   - Adds paint/layout containment hints for WebGL-heavy surfaces.
 */
 
 :root {
   color-scheme: dark;
-  --bg: #00111f;
-  --bg-2: #006b91;
+  --bg: #00131c;
+  --bg-2: #005b65;
   --ink: #f5fffd;
   --ink-strong: #ffffff;
-  --muted: #e0fbff;
-  --muted-2: #bdf7ff;
-  --aqua: #79fff1;
-  --cyan: #23d9ff;
+  --muted: #e6fff9;
+  --muted-2: #c1fff2;
+  --aqua: #6dffe9;
+  --cyan: #26d8ff;
   --blue: #0a77bc;
   --deep-blue: #001f3b;
   --violet: #9ec4ff;
   --pink: #ff4256;
   --lime: #edff7a;
-  --panel: rgba(0, 21, 36, 0.54);
-  --panel-strong: rgba(0, 28, 50, 0.76);
+  --panel: rgba(0, 25, 34, 0.50);
+  --panel-strong: rgba(0, 26, 39, 0.72);
   --border: rgba(198, 255, 255, 0.34);
   --border-strong: rgba(247, 255, 255, 0.72);
   --shadow: 0 34px 92px rgba(0, 11, 25, 0.54), inset 0 1px 0 rgba(255, 255, 255, 0.22);
@@ -52,7 +53,7 @@ body {
   background:
     radial-gradient(circle at 18% -12%, rgba(214, 255, 248, 0.24), transparent 16rem),
     radial-gradient(circle at 78% 0%, rgba(35, 217, 255, 0.18), transparent 28rem),
-    linear-gradient(160deg, #007ea1 0%, #00698f 18%, #014469 42%, #012d4c 66%, #00172c 86%, #000a16 100%);
+    linear-gradient(160deg, #027a86 0%, #006d78 18%, #00485c 42%, #01374d 66%, #001a2e 86%, #000911 100%);
   overflow-x: hidden;
 }
 
@@ -134,6 +135,34 @@ select {
   opacity: 0.96;
   pointer-events: none;
   mix-blend-mode: normal;
+  contain: strict;
+}
+
+.water-tint {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.68;
+  background:
+    linear-gradient(145deg,
+      rgba(0, 59, 49, 0.50) 0%,
+      rgba(0, 124, 112, 0.28) 34%,
+      rgba(20, 197, 180, 0.16) 52%,
+      rgba(0, 29, 48, 0.42) 100%),
+    radial-gradient(ellipse at 12% 10%, rgba(177, 255, 233, 0.20), transparent 34%),
+    radial-gradient(ellipse at 88% 26%, rgba(16, 210, 189, 0.18), transparent 38%),
+    radial-gradient(ellipse at 50% 120%, rgba(0, 9, 19, 0.42), transparent 60%);
+  mix-blend-mode: multiply;
+  transition: opacity 260ms ease, background 260ms ease;
+}
+
+body.effects-on .water-tint {
+  opacity: 0.58;
+}
+
+body.effects-off .water-tint {
+  opacity: 0.76;
 }
 
 .ambient {
@@ -199,6 +228,7 @@ main,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   max-width: var(--max-width);
   margin: 0 auto;
   gap: 1rem;
@@ -255,6 +285,55 @@ main,
   font-size: 0.9rem;
   text-decoration: none;
   transition: background 180ms ease, color 180ms ease;
+}
+
+.nav-actions {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.effects-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.54rem;
+  min-height: 38px;
+  padding: 0.45rem 0.72rem;
+  border: 1px solid rgba(201, 255, 247, 0.38);
+  border-radius: 999px;
+  color: var(--ink-strong);
+  background: linear-gradient(180deg, rgba(1, 58, 70, 0.88), rgba(0, 28, 44, 0.72));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 28px rgba(0, 17, 28, 0.26);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(14px) saturate(135%);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, opacity 160ms ease;
+}
+
+.effects-toggle:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(236, 255, 252, 0.74);
+}
+
+.effects-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.effects-toggle-dot {
+  width: 0.78rem;
+  height: 0.78rem;
+  border-radius: 999px;
+  background: #7d8a95;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+}
+
+.effects-toggle[aria-pressed="true"] .effects-toggle-dot {
+  background: var(--lime);
+  box-shadow: 0 0 18px rgba(237, 255, 122, 0.82), inset 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
 
 .nav-links a:hover,
@@ -435,9 +514,20 @@ main {
   min-height: 300px;
   border: 0;
   background: transparent;
+  contain: strict;
   filter:
     drop-shadow(0 36px 48px rgba(0, 7, 18, 0.46))
     drop-shadow(0 0 50px rgba(126, 255, 243, 0.18));
+}
+
+body.effects-off .molecule-canvas {
+  filter:
+    drop-shadow(0 28px 38px rgba(0, 7, 18, 0.42))
+    drop-shadow(0 0 34px rgba(126, 255, 243, 0.14));
+}
+
+body.effects-off .gl-canvas {
+  opacity: 0.78;
 }
 
 .molecule-css-fallback {
@@ -448,12 +538,20 @@ main {
   width: min(94%, 540px);
   aspect-ratio: 1.18 / 1;
   transform-style: preserve-3d;
-  animation: moleculeFloatSpin 12.5s ease-in-out infinite;
+  animation: none;
   filter: drop-shadow(0 34px 52px rgba(0, 7, 18, 0.48));
 }
 
 .molecule-css-fallback.is-visible {
   display: block;
+}
+
+body.effects-on .molecule-css-fallback.is-visible {
+  animation: moleculeFloatSpin 12.5s ease-in-out infinite;
+}
+
+body.effects-off .molecule-css-fallback.is-visible {
+  transform: rotateX(8deg) rotateY(-16deg) rotateZ(0deg);
 }
 
 .atom,
@@ -626,6 +724,8 @@ main {
 
 .section {
   padding-block: clamp(3.2rem, 7vw, 6.2rem);
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
 }
 
 .section-heading {
@@ -908,6 +1008,16 @@ select {
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.36);
 }
 
+.video-fallback {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.video-shell.is-error {
+  border-color: rgba(255, 163, 163, 0.38);
+}
+
 
 .site-footer {
   display: grid;
@@ -985,6 +1095,15 @@ select {
 
   .nav-links {
     display: none;
+  }
+
+  .nav-actions {
+    margin-left: auto;
+  }
+
+  .effects-toggle {
+    min-height: 36px;
+    padding-inline: 0.64rem;
   }
 
   .hero,

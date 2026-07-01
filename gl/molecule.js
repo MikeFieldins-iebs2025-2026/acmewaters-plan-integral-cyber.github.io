@@ -1,10 +1,14 @@
-/* ACME Waters · WebGL H2O molecule
+/* ACME Waters · WebGL H2O molecule v9
    Renders the hero molecule as actual SDF 3D primitives:
-   3 spheres + 2 finite cylinders, animated in one transparent WebGL canvas.
+   3 spheres + 2 finite cylinders, with dynamic/static modes controlled from main.js.
+   Optimized with capped DPR, FPS throttling and viewport-aware pause.
 */
 
 (() => {
   "use strict";
+
+  const STATIC_TIME = 8.0;
+  let instance = null;
 
   const VERTEX = `precision mediump float;
 attribute vec2 aPosition;
@@ -21,7 +25,7 @@ uniform vec2 uResolution;
 
 varying vec2 vUv;
 
-#define MAX_STEPS 88
+#define MAX_STEPS 72
 #define MAX_DIST 10.0
 #define SURF_DIST 0.0017
 
@@ -198,15 +202,36 @@ void main() {
     if (canvas) canvas.hidden = true;
   }
 
-  function initMolecule() {
+  function resolveRenderSize(canvas, maxDpr, maxEdge) {
+    let pixelRatio = Math.min(window.devicePixelRatio || 1, maxDpr);
+    let nextWidth = Math.max(1, Math.floor(canvas.clientWidth * pixelRatio));
+    let nextHeight = Math.max(1, Math.floor(canvas.clientHeight * pixelRatio));
+    const longest = Math.max(nextWidth, nextHeight);
+
+    if (longest > maxEdge) {
+      const scale = maxEdge / longest;
+      nextWidth = Math.max(1, Math.floor(nextWidth * scale));
+      nextHeight = Math.max(1, Math.floor(nextHeight * scale));
+    }
+
+    return { width: nextWidth, height: nextHeight };
+  }
+
+  function initMolecule(options = {}) {
+    if (instance) {
+      instance.setActive(Boolean(options.active));
+      return instance;
+    }
+
     const canvas = document.getElementById("molecule-canvas");
-    if (!canvas) return;
+    if (!canvas) return { supported: false, setActive() {} };
 
     const gl = canvas.getContext("webgl", {
       alpha: true,
       antialias: true,
       depth: false,
       stencil: false,
+      preserveDrawingBuffer: false,
       premultipliedAlpha: true,
       powerPreference: "high-performance"
     });
@@ -214,13 +239,15 @@ void main() {
     if (!gl) {
       console.warn("[ACME Waters] WebGL no disponible para la molécula; se activa fallback CSS.");
       showFallback();
-      return;
+      instance = { supported: false, setActive() {} };
+      return instance;
     }
 
     const program = createProgram(gl);
     if (!program) {
       showFallback();
-      return;
+      instance = { supported: false, setActive() {} };
+      return instance;
     }
 
     const posLoc = gl.getAttribLocation(program, "aPosition");
@@ -244,50 +271,118 @@ void main() {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+    const maxDpr = Math.max(0.8, Math.min(Number(options.maxDpr) || 1.35, 1.6));
+    const maxEdge = Math.max(360, Math.min(Number(options.maxEdge) || 780, 980));
+    const targetFPS = Math.max(18, Math.min(Number(options.targetFPS) || 42, 60));
+    const frameInterval = 1000 / targetFPS;
+
     let width = 0;
     let height = 0;
-    let running = true;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let active = Boolean(options.active);
+    let frameId = 0;
+    let pageVisible = document.visibilityState !== "hidden";
+    let viewportVisible = true;
+    let lastDrawTime = -Infinity;
+
+    function canAnimate() {
+      return pageVisible && viewportVisible;
+    }
 
     function resize() {
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.8);
-      const nextWidth = Math.max(1, Math.floor(canvas.clientWidth * ratio));
-      const nextHeight = Math.max(1, Math.floor(canvas.clientHeight * ratio));
-      if (nextWidth === width && nextHeight === height) return;
+      const size = resolveRenderSize(canvas, maxDpr, maxEdge);
+      if (size.width === width && size.height === height) return;
 
-      width = nextWidth;
-      height = nextHeight;
+      width = size.width;
+      height = size.height;
       canvas.width = width;
       canvas.height = height;
       gl.viewport(0, 0, width, height);
     }
 
-    function render(now = 0) {
-      if (!running) return;
-
+    function draw(timeSeconds) {
       resize();
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(program);
-      gl.uniform1f(timeLoc, reducedMotion ? 8.0 : now * 0.001);
+      gl.uniform1f(timeLoc, timeSeconds);
       gl.uniform2f(resolutionLoc, width, height);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
 
-      if (!reducedMotion) window.requestAnimationFrame(render);
+    function cancelFrame() {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+    }
+
+    function animate(now = 0) {
+      frameId = 0;
+      if (!canAnimate()) return;
+
+      if (now - lastDrawTime >= frameInterval) {
+        draw(now * 0.001);
+        lastDrawTime = now;
+      }
+
+      if (active) frameId = window.requestAnimationFrame(animate);
+    }
+
+    function renderStatic() {
+      cancelFrame();
+      lastDrawTime = -Infinity;
+      draw(STATIC_TIME);
+    }
+
+    function setActive(nextActive) {
+      active = Boolean(nextActive);
+      cancelFrame();
+      if (!canAnimate()) return;
+      if (active) {
+        lastDrawTime = -Infinity;
+        frameId = window.requestAnimationFrame(animate);
+      } else {
+        renderStatic();
+      }
     }
 
     document.addEventListener("visibilitychange", () => {
-      running = document.visibilityState === "visible";
-      if (running && !reducedMotion) window.requestAnimationFrame(render);
+      pageVisible = document.visibilityState === "visible";
+      cancelFrame();
+      if (!pageVisible) return;
+      setActive(active);
     });
 
-    window.addEventListener("resize", resize, { passive: true });
-    render(0);
+    if (options.pauseWhenOutsideViewport !== false && "IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        viewportVisible = entries.some((entry) => entry.isIntersecting);
+        cancelFrame();
+        if (!viewportVisible) return;
+        setActive(active);
+      }, { root: null, threshold: 0.01, rootMargin: "160px" });
+      observer.observe(canvas);
+    }
+
+    window.addEventListener("resize", () => {
+      if (active) {
+        width = 0;
+        height = 0;
+        return;
+      }
+      renderStatic();
+    }, { passive: true });
+
+    instance = {
+      supported: true,
+      get active() {
+        return active;
+      },
+      setActive
+    };
+
+    setActive(active);
+    return instance;
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMolecule, { once: true });
-  } else {
-    initMolecule();
-  }
+  window.initMolecule = initMolecule;
 })();
