@@ -1,8 +1,9 @@
-/* ACME Waters · Portal JS v8
+/* ACME Waters · Portal JS v9
    - PDF.js single viewer with native fallback.
    - Relative asset paths only.
    - Local video compatibility sources + download UI mitigation.
    - OpenGL effects toggle: dynamic when enabled, static when disabled.
+   - Adaptive WebGL quality profile: DPR caps, throttled FPS and idle-friendly init.
 */
 
 (() => {
@@ -292,6 +293,40 @@
     effectsState.reason = config.reason || "";
   }
 
+  function getEffectsPerformanceProfile() {
+    const config = window.ACME_EFFECTS_CONFIG || {};
+    const dpr = window.devicePixelRatio || 1;
+    const compactViewport = Math.min(window.innerWidth || 1024, window.innerHeight || 768) < 680;
+    const constrained =
+      Boolean(config.saveData) ||
+      Boolean(config.lowCores) ||
+      Boolean(config.lowMemory) ||
+      Boolean(config.reducedMotion) ||
+      (compactViewport && dpr > 1.75);
+
+    return {
+      constrained,
+      field: {
+        maxDpr: constrained ? 0.9 : 1.15,
+        targetFPS: constrained ? 20 : 30,
+        maxEdge: constrained ? 1280 : 1920
+      },
+      molecule: {
+        maxDpr: constrained ? 1.0 : 1.35,
+        targetFPS: constrained ? 24 : 42,
+        maxEdge: constrained ? 540 : 780,
+        pauseWhenOutsideViewport: true
+      }
+    };
+  }
+
+  function whenIdle(callback, timeout = 700) {
+    if ("requestIdleCallback" in window) {
+      return window.requestIdleCallback(callback, { timeout });
+    }
+    return window.setTimeout(callback, Math.min(timeout, 180));
+  }
+
   function updateEffectsUi() {
     document.body.classList.toggle("effects-on", effectsState.active && effectsState.compatible);
     document.body.classList.toggle("effects-off", !effectsState.active || !effectsState.compatible);
@@ -334,34 +369,46 @@
     resolveEffectsConfig();
     updateEffectsUi();
 
+    const performanceProfile = getEffectsPerformanceProfile();
+
     els.effectsToggle?.addEventListener("click", () => {
       setEffectsActive(!effectsState.active);
     });
 
     if (typeof window.initMolecule === "function") {
-      effectsState.molecule = window.initMolecule({ active: effectsState.active });
+      effectsState.molecule = window.initMolecule({
+        active: effectsState.active,
+        ...performanceProfile.molecule
+      });
     }
 
-    if (effectsState.compatible && typeof window.initEtherealField === "function") {
-      effectsState.field = await window.initEtherealField({
-        canvasId: "gl-canvas",
-        vertexUrl: "./gl/field.vert",
-        fragmentUrl: "./gl/field.frag",
-        active: effectsState.active
-      });
-      if (effectsState.field && effectsState.field.supported === false) {
-        effectsState.compatible = false;
-        effectsState.active = false;
-        effectsState.reason = "WebGL no disponible para el fondo.";
-        effectsState.molecule?.setActive?.(false);
+    const startField = async () => {
+      if (effectsState.compatible && typeof window.initEtherealField === "function") {
+        effectsState.field = await window.initEtherealField({
+          canvasId: "gl-canvas",
+          vertexUrl: "./gl/field.vert",
+          fragmentUrl: "./gl/field.frag",
+          active: effectsState.active,
+          ...performanceProfile.field
+        });
+
+        if (effectsState.field && effectsState.field.supported === false) {
+          effectsState.compatible = false;
+          effectsState.active = false;
+          effectsState.reason = "WebGL no disponible para el fondo.";
+          effectsState.molecule?.setActive?.(false);
+        }
+
+        updateEffectsUi();
+        if (effectsState.compatible) {
+          setEffectsActive(effectsState.active);
+        }
+      } else {
+        updateEffectsUi();
       }
-      updateEffectsUi();
-      if (effectsState.compatible) {
-        setEffectsActive(effectsState.active);
-      }
-    } else {
-      updateEffectsUi();
-    }
+    };
+
+    whenIdle(startField);
   }
 
   function init() {

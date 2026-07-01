@@ -1,6 +1,7 @@
-/* ACME Waters · WebGL H2O molecule v8
+/* ACME Waters · WebGL H2O molecule v9
    Renders the hero molecule as actual SDF 3D primitives:
    3 spheres + 2 finite cylinders, with dynamic/static modes controlled from main.js.
+   Optimized with capped DPR, FPS throttling and viewport-aware pause.
 */
 
 (() => {
@@ -24,7 +25,7 @@ uniform vec2 uResolution;
 
 varying vec2 vUv;
 
-#define MAX_STEPS 88
+#define MAX_STEPS 72
 #define MAX_DIST 10.0
 #define SURF_DIST 0.0017
 
@@ -201,6 +202,21 @@ void main() {
     if (canvas) canvas.hidden = true;
   }
 
+  function resolveRenderSize(canvas, maxDpr, maxEdge) {
+    let pixelRatio = Math.min(window.devicePixelRatio || 1, maxDpr);
+    let nextWidth = Math.max(1, Math.floor(canvas.clientWidth * pixelRatio));
+    let nextHeight = Math.max(1, Math.floor(canvas.clientHeight * pixelRatio));
+    const longest = Math.max(nextWidth, nextHeight);
+
+    if (longest > maxEdge) {
+      const scale = maxEdge / longest;
+      nextWidth = Math.max(1, Math.floor(nextWidth * scale));
+      nextHeight = Math.max(1, Math.floor(nextHeight * scale));
+    }
+
+    return { width: nextWidth, height: nextHeight };
+  }
+
   function initMolecule(options = {}) {
     if (instance) {
       instance.setActive(Boolean(options.active));
@@ -215,6 +231,7 @@ void main() {
       antialias: true,
       depth: false,
       stencil: false,
+      preserveDrawingBuffer: false,
       premultipliedAlpha: true,
       powerPreference: "high-performance"
     });
@@ -254,20 +271,29 @@ void main() {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+    const maxDpr = Math.max(0.8, Math.min(Number(options.maxDpr) || 1.35, 1.6));
+    const maxEdge = Math.max(360, Math.min(Number(options.maxEdge) || 780, 980));
+    const targetFPS = Math.max(18, Math.min(Number(options.targetFPS) || 42, 60));
+    const frameInterval = 1000 / targetFPS;
+
     let width = 0;
     let height = 0;
     let active = Boolean(options.active);
     let frameId = 0;
-    let visible = document.visibilityState !== "hidden";
+    let pageVisible = document.visibilityState !== "hidden";
+    let viewportVisible = true;
+    let lastDrawTime = -Infinity;
+
+    function canAnimate() {
+      return pageVisible && viewportVisible;
+    }
 
     function resize() {
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.8);
-      const nextWidth = Math.max(1, Math.floor(canvas.clientWidth * ratio));
-      const nextHeight = Math.max(1, Math.floor(canvas.clientHeight * ratio));
-      if (nextWidth === width && nextHeight === height) return;
+      const size = resolveRenderSize(canvas, maxDpr, maxEdge);
+      if (size.width === width && size.height === height) return;
 
-      width = nextWidth;
-      height = nextHeight;
+      width = size.width;
+      height = size.height;
       canvas.width = width;
       canvas.height = height;
       gl.viewport(0, 0, width, height);
@@ -292,21 +318,28 @@ void main() {
 
     function animate(now = 0) {
       frameId = 0;
-      if (!visible) return;
-      draw(now * 0.001);
+      if (!canAnimate()) return;
+
+      if (now - lastDrawTime >= frameInterval) {
+        draw(now * 0.001);
+        lastDrawTime = now;
+      }
+
       if (active) frameId = window.requestAnimationFrame(animate);
     }
 
     function renderStatic() {
       cancelFrame();
+      lastDrawTime = -Infinity;
       draw(STATIC_TIME);
     }
 
     function setActive(nextActive) {
       active = Boolean(nextActive);
       cancelFrame();
-      if (!visible) return;
+      if (!canAnimate()) return;
       if (active) {
+        lastDrawTime = -Infinity;
         frameId = window.requestAnimationFrame(animate);
       } else {
         renderStatic();
@@ -314,14 +347,28 @@ void main() {
     }
 
     document.addEventListener("visibilitychange", () => {
-      visible = document.visibilityState === "visible";
+      pageVisible = document.visibilityState === "visible";
       cancelFrame();
-      if (!visible) return;
+      if (!pageVisible) return;
       setActive(active);
     });
 
+    if (options.pauseWhenOutsideViewport !== false && "IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        viewportVisible = entries.some((entry) => entry.isIntersecting);
+        cancelFrame();
+        if (!viewportVisible) return;
+        setActive(active);
+      }, { root: null, threshold: 0.01, rootMargin: "160px" });
+      observer.observe(canvas);
+    }
+
     window.addEventListener("resize", () => {
-      if (active) return;
+      if (active) {
+        width = 0;
+        height = 0;
+        return;
+      }
       renderStatic();
     }, { passive: true });
 
