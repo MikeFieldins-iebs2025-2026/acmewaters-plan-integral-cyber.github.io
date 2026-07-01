@@ -1,9 +1,12 @@
-/* Native WebGL slow pool-water shadow / caustics background for ACME Waters.
+/* Native WebGL slow pool-water shadow / caustics background for ACME Waters v8.
    Uses relative shader files, with inline fallbacks for file:// and restrictive hosts.
+   Exposes a controller so the background can be animated or held as a static caustic frame.
 */
 
 (() => {
   "use strict";
+
+  const STATIC_TIME = 18.0;
 
   const FALLBACK_VERTEX = `precision mediump float;
 attribute vec2 aPosition;
@@ -158,7 +161,7 @@ void main() {
 
   async function initEtherealField(options = {}) {
     const canvas = document.getElementById(options.canvasId || "gl-canvas");
-    if (!canvas) return;
+    if (!canvas) return { supported: false, setActive() {} };
 
     const gl = canvas.getContext("webgl", {
       alpha: true,
@@ -171,7 +174,8 @@ void main() {
 
     if (!gl) {
       console.warn("[ACME Waters] WebGL no disponible; se mantiene fondo CSS.");
-      return;
+      canvas.hidden = true;
+      return { supported: false, setActive() {} };
     }
 
     const [vertexSource, fragmentSource] = await Promise.all([
@@ -180,7 +184,10 @@ void main() {
     ]);
 
     const program = createProgram(gl, vertexSource, fragmentSource);
-    if (!program) return;
+    if (!program) {
+      canvas.hidden = true;
+      return { supported: false, setActive() {} };
+    }
 
     const positionLocation = gl.getAttribLocation(program, "aPosition");
     const timeLocation = gl.getUniformLocation(program, "uTime");
@@ -208,8 +215,9 @@ void main() {
 
     let width = 0;
     let height = 0;
-    let running = true;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let active = Boolean(options.active);
+    let frameId = 0;
+    let visible = document.visibilityState !== "hidden";
 
     function resize() {
       const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75);
@@ -224,27 +232,67 @@ void main() {
       gl.viewport(0, 0, width, height);
     }
 
-    function render(now = 0) {
-      if (!running) return;
-
+    function draw(timeSeconds) {
       resize();
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(program);
-      gl.uniform1f(timeLocation, reducedMotion ? 12.0 : now * 0.001);
+      gl.uniform1f(timeLocation, timeSeconds);
       gl.uniform2f(resolutionLocation, width, height);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
 
-      if (!reducedMotion) window.requestAnimationFrame(render);
+    function cancelFrame() {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+    }
+
+    function animate(now = 0) {
+      frameId = 0;
+      if (!visible) return;
+      draw(now * 0.001);
+      if (active) frameId = window.requestAnimationFrame(animate);
+    }
+
+    function renderStatic() {
+      cancelFrame();
+      draw(STATIC_TIME);
+    }
+
+    function setActive(nextActive) {
+      active = Boolean(nextActive);
+      cancelFrame();
+      if (!visible) return;
+      if (active) {
+        frameId = window.requestAnimationFrame(animate);
+      } else {
+        renderStatic();
+      }
     }
 
     document.addEventListener("visibilitychange", () => {
-      running = document.visibilityState === "visible";
-      if (running && !reducedMotion) window.requestAnimationFrame(render);
+      visible = document.visibilityState === "visible";
+      cancelFrame();
+      if (!visible) return;
+      setActive(active);
     });
 
-    window.addEventListener("resize", resize, { passive: true });
-    render(0);
+    window.addEventListener("resize", () => {
+      if (active) return;
+      renderStatic();
+    }, { passive: true });
+
+    setActive(active);
+
+    return {
+      supported: true,
+      get active() {
+        return active;
+      },
+      setActive
+    };
   }
 
   window.initEtherealField = initEtherealField;

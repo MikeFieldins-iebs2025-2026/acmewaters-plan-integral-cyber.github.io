@@ -1,10 +1,13 @@
-/* ACME Waters · WebGL H2O molecule
+/* ACME Waters · WebGL H2O molecule v8
    Renders the hero molecule as actual SDF 3D primitives:
-   3 spheres + 2 finite cylinders, animated in one transparent WebGL canvas.
+   3 spheres + 2 finite cylinders, with dynamic/static modes controlled from main.js.
 */
 
 (() => {
   "use strict";
+
+  const STATIC_TIME = 8.0;
+  let instance = null;
 
   const VERTEX = `precision mediump float;
 attribute vec2 aPosition;
@@ -198,9 +201,14 @@ void main() {
     if (canvas) canvas.hidden = true;
   }
 
-  function initMolecule() {
+  function initMolecule(options = {}) {
+    if (instance) {
+      instance.setActive(Boolean(options.active));
+      return instance;
+    }
+
     const canvas = document.getElementById("molecule-canvas");
-    if (!canvas) return;
+    if (!canvas) return { supported: false, setActive() {} };
 
     const gl = canvas.getContext("webgl", {
       alpha: true,
@@ -214,13 +222,15 @@ void main() {
     if (!gl) {
       console.warn("[ACME Waters] WebGL no disponible para la molécula; se activa fallback CSS.");
       showFallback();
-      return;
+      instance = { supported: false, setActive() {} };
+      return instance;
     }
 
     const program = createProgram(gl);
     if (!program) {
       showFallback();
-      return;
+      instance = { supported: false, setActive() {} };
+      return instance;
     }
 
     const posLoc = gl.getAttribLocation(program, "aPosition");
@@ -246,8 +256,9 @@ void main() {
 
     let width = 0;
     let height = 0;
-    let running = true;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let active = Boolean(options.active);
+    let frameId = 0;
+    let visible = document.visibilityState !== "hidden";
 
     function resize() {
       const ratio = Math.min(window.devicePixelRatio || 1, 1.8);
@@ -262,32 +273,69 @@ void main() {
       gl.viewport(0, 0, width, height);
     }
 
-    function render(now = 0) {
-      if (!running) return;
-
+    function draw(timeSeconds) {
       resize();
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(program);
-      gl.uniform1f(timeLoc, reducedMotion ? 8.0 : now * 0.001);
+      gl.uniform1f(timeLoc, timeSeconds);
       gl.uniform2f(resolutionLoc, width, height);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
 
-      if (!reducedMotion) window.requestAnimationFrame(render);
+    function cancelFrame() {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+    }
+
+    function animate(now = 0) {
+      frameId = 0;
+      if (!visible) return;
+      draw(now * 0.001);
+      if (active) frameId = window.requestAnimationFrame(animate);
+    }
+
+    function renderStatic() {
+      cancelFrame();
+      draw(STATIC_TIME);
+    }
+
+    function setActive(nextActive) {
+      active = Boolean(nextActive);
+      cancelFrame();
+      if (!visible) return;
+      if (active) {
+        frameId = window.requestAnimationFrame(animate);
+      } else {
+        renderStatic();
+      }
     }
 
     document.addEventListener("visibilitychange", () => {
-      running = document.visibilityState === "visible";
-      if (running && !reducedMotion) window.requestAnimationFrame(render);
+      visible = document.visibilityState === "visible";
+      cancelFrame();
+      if (!visible) return;
+      setActive(active);
     });
 
-    window.addEventListener("resize", resize, { passive: true });
-    render(0);
+    window.addEventListener("resize", () => {
+      if (active) return;
+      renderStatic();
+    }, { passive: true });
+
+    instance = {
+      supported: true,
+      get active() {
+        return active;
+      },
+      setActive
+    };
+
+    setActive(active);
+    return instance;
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMolecule, { once: true });
-  } else {
-    initMolecule();
-  }
+  window.initMolecule = initMolecule;
 })();
