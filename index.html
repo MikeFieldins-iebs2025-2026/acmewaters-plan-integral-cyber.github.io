@@ -49,17 +49,33 @@
         </p>
         <div class="hero-actions" aria-label="Acciones principales">
           <a class="button button-primary" href="#visor">Abrir visor</a>
-          <a class="button button-ghost" href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar resumen</a>
+          <a class="button button-ghost" href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" target="_blank" rel="noopener noreferrer">Abrir resumen</a>
         </div>
       </div>
 
-      <aside class="hero-orb" aria-label="Síntesis del enfoque">
-        <div class="orb-core">
-          <span class="orb-label">ACME</span>
-          <strong>5</strong>
-          <span>bloques integrados</span>
+      <aside class="hero-molecule" aria-label="Molécula de agua H2O animada como metáfora del escudo ciberfísico">
+        <div class="molecule-halo" aria-hidden="true"></div>
+        <div class="molecule-stage" aria-hidden="true">
+          <div class="molecule-assembly">
+            <span class="bond bond-left"></span>
+            <span class="bond bond-right"></span>
+            <span class="atom atom-o"><span>O</span></span>
+            <span class="atom atom-h atom-h-left"><span>H</span></span>
+            <span class="atom atom-h atom-h-right"><span>H</span></span>
+            <span class="electron-ring ring-a"></span>
+            <span class="electron-ring ring-b"></span>
+            <span class="electron-ring ring-c"></span>
+            <span class="molecule-spark spark-a"></span>
+            <span class="molecule-spark spark-b"></span>
+            <span class="molecule-spark spark-c"></span>
+          </div>
         </div>
-        <ul class="orb-list">
+        <div class="molecule-caption">
+          <span class="orb-label">H<sub>2</sub>O</span>
+          <strong>Continuidad líquida</strong>
+          <small>Gobierno, riesgo y respuesta orbitando el servicio esencial.</small>
+        </div>
+        <ul class="molecule-tags" aria-label="Bloques integrados">
           <li>Estrategia</li>
           <li>Organización</li>
           <li>Riesgos</li>
@@ -95,13 +111,11 @@
               <button id="next-page" type="button" class="icon-button" aria-label="Página siguiente">›</button>
               <button id="zoom-out" type="button" class="icon-button" aria-label="Reducir zoom">−</button>
               <button id="zoom-in" type="button" class="icon-button" aria-label="Ampliar zoom">+</button>
-              <a id="download-current" class="button button-small" href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar</a>
+              <a id="download-current" class="button button-small" href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" target="_blank" rel="noopener noreferrer">Abrir PDF</a>
             </div>
           </div>
 
-          <div class="pdf-status" id="pdf-status" role="status" aria-live="polite">
-            Preparando visor PDF.js…
-          </div>
+          <div class="pdf-status" id="pdf-status" hidden></div>
 
           <h3 id="pdf-current-title" class="visually-hidden">Resumen ejecutivo</h3>
           <div class="pdf-stage" id="pdf-stage">
@@ -217,10 +231,7 @@
           <source src="./assets/video/el-escudo-ciberfisico.mp4" type="video/mp4">
           Tu navegador no puede reproducir este vídeo local.
         </video>
-        <p class="media-note">
-          Nota técnica: en sitios estáticos no se puede impedir de forma absoluta la descarga si se inspecciona el recurso,
-          pero se han retirado los controles visibles de descarga y el menú contextual del reproductor.
-        </p>
+
       </div>
     </section>
   </main>
@@ -237,8 +248,8 @@
         · Coedición web: Lexor.
       </p>
       <p class="footer-downloads">
-        <a href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" download>Descargar PDF principal</a>
-        <a href="./assets/docs/ACME_Waters_Anexos_Tecnicos.pdf" download>Descargar anexos</a>
+        <a href="./assets/docs/ACME_Waters_Resumen_Ejecutivo.pdf" target="_blank" rel="noopener noreferrer">Abrir PDF principal</a>
+        <a href="./assets/docs/ACME_Waters_Anexos_Tecnicos.pdf" target="_blank" rel="noopener noreferrer">Abrir anexos</a>
       </p>
     </div>
   </footer>

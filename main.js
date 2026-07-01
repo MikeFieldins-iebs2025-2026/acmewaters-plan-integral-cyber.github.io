@@ -50,9 +50,16 @@
   };
 
   function setStatus(message, stateName = "ready") {
+    // Estado interno sin salida visual: la interfaz usa el visor nativo como fallback silencioso.
     if (!els.status) return;
     els.status.textContent = message;
     els.status.dataset.state = stateName;
+  }
+
+  function traceViewerFallback(reason) {
+    if (window.console && typeof window.console.warn === "function") {
+      window.console.warn("[ACME Waters] PDF.js no disponible; visor nativo activado.", reason);
+    }
   }
 
   function activeDocument() {
@@ -63,15 +70,25 @@
     const doc = activeDocument();
     if (els.download) {
       els.download.href = doc.url;
-      els.download.setAttribute("download", doc.download);
-      els.download.textContent = `Descargar ${state.activeDocKey === "executive" ? "resumen" : "anexos"}`;
+      els.download.removeAttribute("download");
+      els.download.setAttribute("target", "_blank");
+      els.download.setAttribute("rel", "noopener noreferrer");
+      els.download.textContent = `Abrir ${state.activeDocKey === "executive" ? "resumen" : "anexos"}`;
     }
     if (els.title) els.title.textContent = doc.title;
   }
 
   function showNativePdfFallback(reason) {
     const doc = activeDocument();
-    if (els.canvas) els.canvas.hidden = true;
+    traceViewerFallback(reason);
+    if (els.canvas) {
+      els.canvas.hidden = true;
+      els.canvas.removeAttribute("aria-label");
+      els.canvas.width = 0;
+      els.canvas.height = 0;
+      els.canvas.style.width = "";
+      els.canvas.style.height = "";
+    }
     if (els.fallback) {
       els.fallback.hidden = false;
       els.fallback.src = doc.url;
@@ -79,14 +96,14 @@
     state.pdfDoc = null;
     els.pageNum.textContent = "—";
     els.pageCount.textContent = "—";
-    setStatus(
-      `Modo visor nativo activado. PDF.js no está disponible o el navegador bloqueó el acceso local (${reason}).`,
-      "error"
-    );
+    setStatus("Visor nativo activado.", "error");
   }
 
   function showPdfCanvas() {
-    if (els.canvas) els.canvas.hidden = false;
+    if (els.canvas) {
+      els.canvas.hidden = false;
+      els.canvas.setAttribute("aria-label", "Página renderizada del documento PDF");
+    }
     if (els.fallback) els.fallback.hidden = true;
   }
 

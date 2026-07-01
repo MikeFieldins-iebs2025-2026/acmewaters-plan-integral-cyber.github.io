@@ -1,14 +1,14 @@
 # ACME Waters · Cyber Portal
 
 Sitio web estático para consulta ejecutiva del **Plan Integral de Ciberseguridad de ACME Waters**.  
-Versión revisada con rutas relativas, vídeo local y fondo WebGL dinámico.
+Versión revisada con rutas relativas, vídeo local, fondo WebGL dinámico y molécula H₂O 3D en hero.
 
 ## Funcionalidad
 
 - Visor único de PDFs basado en **PDF.js** con:
   - carga por defecto de `ACME_Waters_Resumen_Ejecutivo.pdf`;
   - alternancia sin recarga hacia `ACME_Waters_Anexos_Tecnicos.pdf`;
-  - botones de navegación, zoom y descarga;
+  - botones de navegación, zoom y apertura de PDF en nueva pestaña para descarga desde el visor del navegador;
   - fallback automático a visor nativo del navegador cuando PDF.js no esté disponible.
 - Reproductor local de vídeo desde `./assets/video/el-escudo-ciberfisico.mp4`.
 - Interfaz responsive inspirada en Frutiger Aero/Y2K modernizado:
@@ -22,12 +22,12 @@ Versión revisada con rutas relativas, vídeo local y fondo WebGL dinámico.
   - etiquetas ARIA;
   - contraste alto;
   - compatibilidad con `prefers-reduced-motion`.
-- Footer con licencia, créditos y enlaces de descarga.
+- Footer con licencia, créditos y enlaces de apertura de PDFs en nueva pestaña.
 
 ## Estructura
 
 ```text
-acme-waters-cyber-portal-v2/
+acme-waters-cyber-portal-v3/
 ├── index.html
 ├── style.css
 ├── main.js
@@ -55,7 +55,7 @@ acme-waters-cyber-portal-v2/
 Las rutas de documentos y vídeo son relativas (`./assets/...`). Para máxima compatibilidad con PDF.js, sirve la carpeta con un servidor estático:
 
 ```bash
-cd acme-waters-cyber-portal-v2
+cd acme-waters-cyber-portal-v3
 python3 -m http.server 8080
 ```
 
@@ -82,9 +82,16 @@ Se han aplicado controles de mitigación de descarga (`controlsList="nodownload"
 ## Revisión interna
 
 - PDF principal definido como documento por defecto.
-- Ambos PDFs usan rutas relativas y tienen botón de descarga dedicado.
+- Ambos PDFs usan rutas relativas y se abren en nueva pestaña desde botones dedicados.
 - Vídeo local servido desde `./assets/video/`.
 - Shaders WebGL cargan desde `./gl/` y tienen fallback interno si el navegador bloquea `fetch()` local.
 - Diseño probado para ancho mínimo de 320 px mediante CSS responsive.
 - Animación WebGL reducida automáticamente con `prefers-reduced-motion`.
 - Sin `console.log()` de producción.
+
+## Cambios v3
+
+- Sustituido el `hero-orb` por una molécula de agua H₂O animada con flotación y rotación 3D.
+- Ocultos el estado visual de PDF.js y el canvas vacío cuando se activa el fallback nativo; las incidencias se trazan con `console.warn()`.
+- Enlaces a PDFs configurados con `target="_blank"` y `rel="noopener noreferrer"`.
+- Retirada la nota técnica visible bajo el reproductor de vídeo.
