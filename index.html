@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-build="v10-20260701-cache-bust">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -7,9 +7,10 @@
   <meta name="description" content="Portal ejecutivo estático para consultar el Plan Integral de Ciberseguridad de ACME Waters.">
   <title>ACME Waters · Plan Integral de Ciberseguridad</title>
   <link rel="icon" href="./assets/icons/acme-drop-shield.svg" type="image/svg+xml">
-  <link rel="preload" href="./style.css" as="style">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="preload" href="./style.css?v=v10-20260701-cache-bust" as="style">
+  <link rel="stylesheet" href="./style.css?v=v10-20260701-cache-bust">
   <script>
+    window.ACME_BUILD = "v10-20260701-cache-bust";
     window.ACME_EFFECTS_CONFIG = (function () {
       var compatible = false;
       var reason = "";
@@ -48,9 +49,9 @@
     })();
   </script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
-  <script defer src="./gl/ethereal-field.js"></script>
-  <script defer src="./gl/molecule.js"></script>
-  <script defer src="./main.js"></script>
+  <script defer src="./gl/ethereal-field.js?v=v10-20260701-cache-bust"></script>
+  <script defer src="./gl/molecule.js?v=v10-20260701-cache-bust"></script>
+  <script defer src="./main.js?v=v10-20260701-cache-bust"></script>
 </head>
 <body>
   <a class="skip-link" href="#visor">Saltar al visor documental</a>

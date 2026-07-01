@@ -1,8 +1,9 @@
-/* ACME Waters · Cyber Portal v9 incremental
+/* ACME Waters · Cyber Portal v10 incremental
    - Adds an OpenGL effects toggle with static fallback states.
    - Adds a translucent green/turquoise water tint over the pool-caustics background.
    - Re-encodes local video assets for wider browser compatibility.
    - Adds paint/layout containment hints for WebGL-heavy surfaces.
+   - Cache-busting release marker for GitHub Pages / Chrome refresh consistency.
 */
 
 :root {
